@@ -1,4 +1,4 @@
-import {View, Button} from 'react-native';
+import {View, Button, DeviceEventEmitter} from 'react-native';
 import notifee from '@notifee/react-native';
 import {
   accelerometer,
@@ -6,25 +6,20 @@ import {
   setUpdateIntervalForType,
   SensorTypes,
 } from 'react-native-sensors';
-
-let accData = {
-  x: 0,
-  y: 0,
-  z: 0,
-  timestamp: 0,
-};
-
-let gyroData = {
-  x: 0,
-  y: 0,
-  z: 0,
-  timestamp: 0,
-};
+import {
+  startLightSensor,
+  stopLightSensor,
+} from 'react-native-ambient-light-sensor';
 
 notifee.registerForegroundService(notification => {
   return new Promise(() => {
+    startLightSensor();
     setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
     setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
+
+    const subscription = DeviceEventEmitter.addListener('LightSensor', data => {
+      console.log(data.lightValue);
+    });
 
     const accSubscription = accelerometer.subscribe(({x, y, z, timestamp}) => {
       console.log('accSubscription', x, y, z, timestamp);
@@ -37,6 +32,8 @@ notifee.registerForegroundService(notification => {
     return () => {
       accSubscription.unsubscribe();
       gyroSubscription.unsubscribe();
+      stopLightSensor();
+      subscription.remove();
     };
   });
 });
