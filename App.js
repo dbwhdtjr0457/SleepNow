@@ -1,11 +1,15 @@
 import React, {useEffect} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, DeviceEventEmitter} from 'react-native';
 import {
   accelerometer,
   gyroscope,
   setUpdateIntervalForType,
   SensorTypes,
 } from 'react-native-sensors';
+import {
+  startLightSensor,
+  stopLightSensor,
+} from 'react-native-ambient-light-sensor';
 
 import Screen from './ForegroundService';
 
@@ -13,6 +17,7 @@ setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
 setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
 
 export default function App() {
+  const [light, setLight] = React.useState(0);
   const [accData, setAccData] = React.useState({
     x: 0,
     y: 0,
@@ -27,6 +32,10 @@ export default function App() {
   });
 
   useEffect(() => {
+    startLightSensor();
+    const subscription = DeviceEventEmitter.addListener('LightSensor', data => {
+      setLight(data.lightValue);
+    });
     const accSubscription = accelerometer.subscribe(({x, y, z, timestamp}) => {
       setAccData({x, y, z, timestamp});
     });
@@ -38,6 +47,8 @@ export default function App() {
     return () => {
       accSubscription.unsubscribe();
       gyroSubscription.unsubscribe();
+      stopLightSensor();
+      subscription?.remove();
     };
   }, []);
 
@@ -54,6 +65,7 @@ export default function App() {
       <Text>y: {gyroData.y}</Text>
       <Text>z: {gyroData.z}</Text>
       <Text>timestamp: {gyroData.timestamp}</Text>
+      <Text>Light: {light}</Text>
     </View>
   );
 }
