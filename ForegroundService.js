@@ -1,3 +1,4 @@
+import React from 'react';
 import {View, Button, DeviceEventEmitter} from 'react-native';
 import notifee from '@notifee/react-native';
 import {
@@ -11,30 +12,27 @@ import {
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
 
+let subscription = null;
+let accSubscription = null;
+let gyroSubscription = null;
+
 notifee.registerForegroundService(notification => {
   return new Promise(() => {
     startLightSensor();
     setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
     setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
 
-    const subscription = DeviceEventEmitter.addListener('LightSensor', data => {
+    subscription = DeviceEventEmitter.addListener('LightSensor', data => {
       console.log(data.lightValue);
     });
 
-    const accSubscription = accelerometer.subscribe(({x, y, z, timestamp}) => {
+    accSubscription = accelerometer.subscribe(({x, y, z, timestamp}) => {
       console.log('accSubscription', x, y, z, timestamp);
     });
 
-    const gyroSubscription = gyroscope.subscribe(({x, y, z, timestamp}) => {
+    gyroSubscription = gyroscope.subscribe(({x, y, z, timestamp}) => {
       console.log('gyroSubscription', x, y, z, timestamp);
     });
-
-    return () => {
-      accSubscription.unsubscribe();
-      gyroSubscription.unsubscribe();
-      stopLightSensor();
-      subscription.remove();
-    };
   });
 });
 
@@ -73,7 +71,18 @@ export default function Screen() {
       <Button
         title="Stop Foreground Service"
         onPress={() => {
-          notifee.stopForegroundService();
+          notifee
+            .stopForegroundService()
+            .then(() => {
+              console.log('Foreground service stopped');
+            })
+            .catch(err => {
+              console.log('Foreground service failed to stop', err);
+            });
+          accSubscription.unsubscribe();
+          gyroSubscription.unsubscribe();
+          stopLightSensor();
+          subscription.remove();
         }}
       />
     </View>
