@@ -54,8 +54,8 @@ export default function Screen() {
 
     // Display a notification
     await notifee.displayNotification({
-      title: 'Notification Title',
-      body: 'Main body content of the notification',
+      title: '데이터 수집 중...',
+      body: 'SleepNow가 데이터를 수집하고 있습니다.',
       android: {
         channelId,
         // pressAction is needed if you want the notification to open the app when pressed
