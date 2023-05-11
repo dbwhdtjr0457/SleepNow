@@ -50,7 +50,7 @@ export default function Foregroundservice() {
     console.log(data);
     try {
       firestore()
-        .collection(auth().currentUser.email ?? 'test')
+        .collection(auth().currentUser.email)
         .add(data)
         .then(info => {
           console.log('Added document with ID: ', info.id);
