@@ -12,6 +12,7 @@ import {
   startLightSensor,
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
+import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import useInterval from './useInterval';
 
@@ -49,7 +50,7 @@ export default function Foregroundservice() {
     console.log(data);
     try {
       firestore()
-        .collection('test')
+        .collection(auth().currentUser.email ?? 'test')
         .add(data)
         .then(info => {
           console.log('Added document with ID: ', info.id);
@@ -69,22 +70,22 @@ export default function Foregroundservice() {
     const totalInfo = {
       time: timeNow,
       light: lightArray.reduce((a, b) => a + b, 0) / lightArray.length,
-      acc: {
+      awake: awake,
+      s_acc: {
         x: accArray.reduce((a, b) => a + b.x, 0) / accArray.length,
         y: accArray.reduce((a, b) => a + b.y, 0) / accArray.length,
         z: accArray.reduce((a, b) => a + b.z, 0) / accArray.length,
       },
-      gyro: {
+      s_gyro: {
         x: gyroArray.reduce((a, b) => a + b.x, 0) / gyroArray.length,
         y: gyroArray.reduce((a, b) => a + b.y, 0) / gyroArray.length,
         z: gyroArray.reduce((a, b) => a + b.z, 0) / gyroArray.length,
       },
-      mag: {
+      s_mag: {
         x: magArray.reduce((a, b) => a + b.x, 0) / magArray.length,
         y: magArray.reduce((a, b) => a + b.y, 0) / magArray.length,
         z: magArray.reduce((a, b) => a + b.z, 0) / magArray.length,
       },
-      awake: awake,
     };
     addData(totalInfo);
   };
@@ -95,7 +96,6 @@ export default function Foregroundservice() {
       setAccArray([...accArray, accData]);
       setGyroArray([...gyroArray, gyroData]);
       setMagArray([...magArray, magData]);
-      console.log(lightArray.length);
       console.log(accArray.length);
       if (accArray.length === 10) {
         updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
