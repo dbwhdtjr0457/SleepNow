@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "515961940311",
+    "firebase_url": "https://sleepnow-3ffac-default-rtdb.firebaseio.com",
+    "project_id": "sleepnow-3ffac",
+    "storage_bucket": "sleepnow-3ffac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515961940311:android:51776a96152cf81fc83612",
+        "android_client_info": {
+          "package_name": "com.sleepnow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "515961940311-rqds3tf6ohkn6bv94veq1utp0latq0np.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFOkwndGOs4zV0LxrQkew8n51blqrpHPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "515961940311-61j17l8h550tn169vgso77bqk1h1d3eo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
