@@ -1,5 +1,12 @@
 import React, {useEffect} from 'react';
-import {View, Text, DeviceEventEmitter} from 'react-native';
+import {
+  View,
+  Text,
+  DeviceEventEmitter,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import {
   accelerometer,
   gyroscope,
@@ -11,7 +18,10 @@ import {
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
 
-import Screen from './ForegroundService';
+import Foregroundservice from './ForegroundService';
+import {LoginPage} from './LoginPage';
+
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
 setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
@@ -53,19 +63,43 @@ export default function App() {
   }, []);
 
   return (
-    <View>
-      <Screen />
-      <Text>Accelerometer:</Text>
-      <Text>x: {accData.x}</Text>
-      <Text>y: {accData.y}</Text>
-      <Text>z: {accData.z}</Text>
-      <Text>timestamp: {accData.timestamp}</Text>
-      <Text>Gyroscope:</Text>
-      <Text>x: {gyroData.x}</Text>
-      <Text>y: {gyroData.y}</Text>
-      <Text>z: {gyroData.z}</Text>
-      <Text>timestamp: {gyroData.timestamp}</Text>
-      <Text>Light: {light}</Text>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerstyle={styles.scrollView}
+        horizontal
+        pagingEnabled>
+        <LoginPage SCREEN_WIDTH={SCREEN_WIDTH} />
+        <View style={styles.contentContainer}>
+          <Foregroundservice />
+          <Text>Accelerometer:</Text>
+          <Text>x: {accData.x}</Text>
+          <Text>y: {accData.y}</Text>
+          <Text>z: {accData.z}</Text>
+          <Text>timestamp: {accData.timestamp}</Text>
+          <Text>Gyroscope:</Text>
+          <Text>x: {gyroData.x}</Text>
+          <Text>y: {gyroData.y}</Text>
+          <Text>z: {gyroData.z}</Text>
+          <Text>timestamp: {gyroData.timestamp}</Text>
+          <Text>Light: {light}</Text>
+        </View>
+      </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollView: {
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    width: SCREEN_WIDTH,
+    backgroundColor: '#fff',
+  },
+});

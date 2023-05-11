@@ -36,7 +36,7 @@ notifee.registerForegroundService(notification => {
   });
 });
 
-export default function Screen() {
+export default function Foregroundservice() {
   async function onDisplayNotification() {
     // Request permissions (required for iOS)
     await notifee.requestPermission();
@@ -65,7 +65,7 @@ export default function Screen() {
   return (
     <View>
       <Button
-        title="Display Notification"
+        title="Start Foreground Service"
         onPress={() => onDisplayNotification()}
       />
       <Button
