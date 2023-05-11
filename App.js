@@ -10,6 +10,7 @@ import {
 import {
   accelerometer,
   gyroscope,
+  magnetometer,
   setUpdateIntervalForType,
   SensorTypes,
 } from 'react-native-sensors';
@@ -25,6 +26,7 @@ const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
 setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
+setUpdateIntervalForType(SensorTypes.magnetometer, 400); // defaults to 100ms
 
 export default function App() {
   const [light, setLight] = React.useState(0);
@@ -35,6 +37,12 @@ export default function App() {
     timestamp: 0,
   });
   const [gyroData, setGyroData] = React.useState({
+    x: 0,
+    y: 0,
+    z: 0,
+    timestamp: 0,
+  });
+  const [magData, setMagData] = React.useState({
     x: 0,
     y: 0,
     z: 0,
@@ -54,9 +62,14 @@ export default function App() {
       setGyroData({x, y, z, timestamp});
     });
 
+    const magSubscription = magnetometer.subscribe(({x, y, z, timestamp}) => {
+      setMagData({x, y, z, timestamp});
+    });
+
     return () => {
       accSubscription.unsubscribe();
       gyroSubscription.unsubscribe();
+      magSubscription.unsubscribe();
       stopLightSensor();
       subscription?.remove();
     };
@@ -81,6 +94,11 @@ export default function App() {
           <Text>y: {gyroData.y}</Text>
           <Text>z: {gyroData.z}</Text>
           <Text>timestamp: {gyroData.timestamp}</Text>
+          <Text>Magnetometer:</Text>
+          <Text>x: {magData.x}</Text>
+          <Text>y: {magData.y}</Text>
+          <Text>z: {magData.z}</Text>
+          <Text>timestamp: {magData.timestamp}</Text>
           <Text>Light: {light}</Text>
         </View>
       </ScrollView>
