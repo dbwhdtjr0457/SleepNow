@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, Button, DeviceEventEmitter} from 'react-native';
+import {View, Button, DeviceEventEmitter, Text} from 'react-native';
 import notifee from '@notifee/react-native';
 import {
   accelerometer,
@@ -16,6 +16,7 @@ import firestore from '@react-native-firebase/firestore';
 import useInterval from './useInterval';
 
 export default function Foregroundservice() {
+  const [awake, setAwake] = React.useState(true);
   const [luxsubscription, setLuxsubscription] = React.useState(null);
   const [accSubscription, setAccSubscription] = React.useState(null);
   const [gyroSubscription, setGyroSubscription] = React.useState(null);
@@ -57,7 +58,13 @@ export default function Foregroundservice() {
       console.log('Error adding document: ', e);
     }
   };
-  const updateTotalInfo = (lightArray, accArray, gyroArray, magArray) => {
+  const updateTotalInfo = (
+    lightArray,
+    accArray,
+    gyroArray,
+    magArray,
+    awake,
+  ) => {
     const timeNow = new Date();
     const totalInfo = {
       time: timeNow,
@@ -77,6 +84,7 @@ export default function Foregroundservice() {
         y: magArray.reduce((a, b) => a + b.y, 0) / magArray.length,
         z: magArray.reduce((a, b) => a + b.z, 0) / magArray.length,
       },
+      awake: awake,
     };
     addData(totalInfo);
   };
@@ -90,7 +98,7 @@ export default function Foregroundservice() {
       console.log(lightArray.length);
       console.log(accArray.length);
       if (accArray.length === 10) {
-        updateTotalInfo(lightArray, accArray, gyroArray, magArray);
+        updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
         setLightArray([]);
         setAccArray([]);
         setGyroArray([]);
@@ -163,6 +171,13 @@ export default function Foregroundservice() {
     });
   }
 
+  useEffect(() => {
+    setLightArray([]);
+    setAccArray([]);
+    setGyroArray([]);
+    setMagArray([]);
+  }, [awake, accSubscription]);
+
   return (
     <View>
       <Button
@@ -199,6 +214,13 @@ export default function Foregroundservice() {
             });
         }}
       />
+      <Button
+        title="Toggle Awake"
+        onPress={() => {
+          setAwake(!awake);
+        }}
+      />
+      <Text>나는 지금... {awake ? '깨어있어요!' : '잘 꺼에요!'}</Text>
     </View>
   );
 }
