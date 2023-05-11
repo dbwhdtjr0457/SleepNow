@@ -11,8 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 
 export const LoginPage = props => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(' ');
+  const [password, setPassword] = useState(' ');
   const [error, setError] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
 
@@ -63,8 +63,8 @@ export const LoginPage = props => {
       );
     } else {
       AsyncStorage.removeItem('userData');
-      setEmail('');
-      setPassword('');
+      setEmail(' ');
+      setPassword(' ');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogin]);
