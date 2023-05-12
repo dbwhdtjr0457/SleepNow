@@ -11,26 +11,33 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 
 export const LoginPage = props => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('asdf');
+  const [password, setPassword] = useState('asdf');
   const [error, setError] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem('userData').then(data => {
-      if (data) {
+    AsyncStorage.getItem('userData')
+      .then(data => {
         const userData = JSON.parse(data);
-        setEmail(userData.email);
-        setPassword(userData.password);
-        setIsLogin(userData.isLogin);
-        auth()
-          .signInWithEmailAndPassword(userData.email, userData.password)
-          .catch(err => {
-            setError(err.message);
-            setIsLogin(false);
-          });
-      }
-    });
+        if (userData.isLogin) {
+          setEmail(userData.email);
+          setPassword(userData.password);
+          setIsLogin(userData.isLogin);
+          console.log(userData.email);
+          auth()
+            .signInWithEmailAndPassword(userData.email, userData.password)
+            .catch(err => {
+              setError(err.message);
+              setIsLogin(false);
+              auth().signOut();
+            });
+        }
+      })
+      .catch(err => {
+        setError(err.message);
+      });
+
     auth().onAuthStateChanged(user => {
       if (user) {
         setIsLogin(true);
@@ -62,12 +69,9 @@ export const LoginPage = props => {
         }),
       );
     } else {
-      AsyncStorage.removeItem('userData');
-      setEmail('');
-      setPassword('');
+      AsyncStorage.setItem('userData', JSON.stringify({isLogin: isLogin}));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLogin]);
+  }, [isLogin, email, password]);
 
   return (
     <View style={styles(props).contentContainer}>
