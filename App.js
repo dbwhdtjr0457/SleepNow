@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  Appearance,
 } from 'react-native';
 import {
   accelerometer,
@@ -23,6 +24,8 @@ import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
+const colorScheme = Appearance.getColorScheme();
+const backgroundColor = colorScheme === 'dark' ? '#000' : '#fff';
 
 setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
 setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
@@ -81,7 +84,10 @@ export default function App() {
         contentContainerstyle={styles.scrollView}
         horizontal
         pagingEnabled>
-        <LoginPage SCREEN_WIDTH={SCREEN_WIDTH} />
+        <LoginPage
+          SCREEN_WIDTH={SCREEN_WIDTH}
+          BACKGROUNDCOLOR={backgroundColor}
+        />
         <View style={styles.contentContainer}>
           <Foregroundservice />
           <Text>Accelerometer:</Text>
@@ -118,6 +124,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: SCREEN_WIDTH,
-    backgroundColor: '#fff',
+    backgroundColor: backgroundColor,
   },
 });

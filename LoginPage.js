@@ -150,6 +150,7 @@ const styles = props =>
       width: props.SCREEN_WIDTH,
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: props.BACKGROUNDCOLOR,
     },
     input: {
       height: 40,
@@ -157,10 +158,11 @@ const styles = props =>
       marginBottom: 10,
       padding: 10,
       borderWidth: 1,
+      borderColor: 'gray',
     },
     login: {
       alignItems: 'center',
-      backgroundColor: '#DDDDDD',
+      backgroundColor: 'gray',
       padding: 10,
       width: 200,
     },
