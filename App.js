@@ -22,6 +22,7 @@ import {
 
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
+import {Getdata} from './Getdata';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 const colorScheme = Appearance.getColorScheme();
@@ -107,6 +108,10 @@ export default function App() {
           <Text>timestamp: {magData.timestamp}</Text>
           <Text>Light: {light}</Text>
         </View>
+        <Getdata
+          SCREEN_WIDTH={SCREEN_WIDTH}
+          BACKGROUNDCOLOR={backgroundColor}
+        />
       </ScrollView>
     </View>
   );

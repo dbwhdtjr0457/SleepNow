@@ -116,7 +116,6 @@ export default function Foregroundservice() {
 
       setLuxsubscription(
         DeviceEventEmitter.addListener('LightSensor', data => {
-          // 수정 시작
           setLight(data.lightValue);
         }),
       );

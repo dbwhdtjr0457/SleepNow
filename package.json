@@ -15,10 +15,15 @@
     "@react-native-firebase/app": "^17.4.3",
     "@react-native-firebase/auth": "^17.4.3",
     "@react-native-firebase/firestore": "^17.4.3",
+    "@tensorflow/tfjs": "^4.6.0",
+    "assert": "^2.0.0",
+    "decision-tree": "^0.3.7",
     "react": "18.2.0",
     "react-native": "0.71.7",
     "react-native-ambient-light-sensor": "^1.0.2",
-    "react-native-sensors": "^7.3.6"
+    "react-native-reanimated": "^3.1.0",
+    "react-native-sensors": "^7.3.6",
+    "scikitjs": "^1.24.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
