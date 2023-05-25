@@ -23,10 +23,11 @@ import {
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
 import {Getdata} from './Getdata';
+import useInterval from './useInterval';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
-const colorScheme = Appearance.getColorScheme();
-const backgroundColor = colorScheme === 'dark' ? '#000' : '#fff';
+const COLOR_SCHEME = Appearance.getColorScheme();
+const BACKGROUND_COLOR = COLOR_SCHEME === 'dark' ? '#000' : '#fff';
 
 setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
 setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
@@ -87,7 +88,7 @@ export default function App() {
         pagingEnabled>
         <LoginPage
           SCREEN_WIDTH={SCREEN_WIDTH}
-          BACKGROUNDCOLOR={backgroundColor}
+          BACKGROUNDCOLOR={BACKGROUND_COLOR}
         />
         <View style={styles.contentContainer}>
           <Foregroundservice />
@@ -110,7 +111,7 @@ export default function App() {
         </View>
         <Getdata
           SCREEN_WIDTH={SCREEN_WIDTH}
-          BACKGROUNDCOLOR={backgroundColor}
+          BACKGROUNDCOLOR={BACKGROUND_COLOR}
         />
       </ScrollView>
     </View>
@@ -129,6 +130,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: SCREEN_WIDTH,
-    backgroundColor: backgroundColor,
+    backgroundColor: BACKGROUND_COLOR,
   },
 });
