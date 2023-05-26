@@ -19,19 +19,19 @@ import {
   startLightSensor,
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
+import {throttle} from 'lodash';
 
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
 import {Getdata} from './Getdata';
-import useInterval from './useInterval';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 const COLOR_SCHEME = Appearance.getColorScheme();
 const BACKGROUND_COLOR = COLOR_SCHEME === 'dark' ? '#000' : '#fff';
 
-setUpdateIntervalForType(SensorTypes.accelerometer, 400); // defaults to 100ms
-setUpdateIntervalForType(SensorTypes.gyroscope, 400); // defaults to 100ms
-setUpdateIntervalForType(SensorTypes.magnetometer, 400); // defaults to 100ms
+setUpdateIntervalForType(SensorTypes.accelerometer, 1000); // defaults to 100ms
+setUpdateIntervalForType(SensorTypes.gyroscope, 1000); // defaults to 100ms
+setUpdateIntervalForType(SensorTypes.magnetometer, 1000); // defaults to 100ms
 
 export default function App() {
   const [light, setLight] = React.useState(0);
@@ -54,11 +54,28 @@ export default function App() {
     timestamp: 0,
   });
 
+  let allData = {
+    light: light.toFixed(0),
+    accX: accData.x.toFixed(0),
+    accY: accData.y.toFixed(0),
+    accZ: accData.z.toFixed(0),
+    gyroX: gyroData.x.toFixed(0),
+    gyroY: gyroData.y.toFixed(0),
+    gyroZ: gyroData.z.toFixed(0),
+    magX: magData.x.toFixed(0),
+    magY: magData.y.toFixed(0),
+    magZ: magData.z.toFixed(0),
+  };
+
   useEffect(() => {
     startLightSensor();
-    const subscription = DeviceEventEmitter.addListener('LightSensor', data => {
-      setLight(data.lightValue);
-    });
+    const subscription = DeviceEventEmitter.addListener(
+      'LightSensor',
+      throttle(data => {
+        setLight(data.lightValue);
+      }, 1000),
+    );
+    // setLight(100);
     const accSubscription = accelerometer.subscribe(({x, y, z, timestamp}) => {
       setAccData({x, y, z, timestamp});
     });
@@ -108,10 +125,12 @@ export default function App() {
           <Text>z: {magData.z}</Text>
           <Text>timestamp: {magData.timestamp}</Text>
           <Text>Light: {light}</Text>
+          <Text>light in data: {allData.light}</Text>
         </View>
         <Getdata
           SCREEN_WIDTH={SCREEN_WIDTH}
           BACKGROUNDCOLOR={BACKGROUND_COLOR}
+          data={allData}
         />
       </ScrollView>
     </View>

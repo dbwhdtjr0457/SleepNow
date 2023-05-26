@@ -14,6 +14,8 @@ import {
 } from 'react-native-ambient-light-sensor';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import {throttle} from 'lodash';
+
 import useInterval from './useInterval';
 
 export default function Foregroundservice() {
@@ -91,7 +93,7 @@ export default function Foregroundservice() {
   };
 
   useInterval(() => {
-    if (luxsubscription) {
+    if (accSubscription) {
       setLightArray([...lightArray, light]);
       setAccArray([...accArray, accData]);
       setGyroArray([...gyroArray, gyroData]);
@@ -115,9 +117,12 @@ export default function Foregroundservice() {
       setUpdateIntervalForType(SensorTypes.magnetometer, 1000);
 
       setLuxsubscription(
-        DeviceEventEmitter.addListener('LightSensor', data => {
-          setLight(data.lightValue);
-        }),
+        DeviceEventEmitter.addListener(
+          'LightSensor',
+          throttle(data => {
+            setLight(data.lightValue);
+          }, 1000),
+        ),
       );
 
       setAccSubscription(
