@@ -20,6 +20,7 @@ import {
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
 import {throttle} from 'lodash';
+import {NativeBaseProvider} from 'native-base';
 
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
@@ -98,42 +99,44 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        contentContainerstyle={styles.scrollView}
-        horizontal
-        pagingEnabled>
-        <LoginPage
-          SCREEN_WIDTH={SCREEN_WIDTH}
-          BACKGROUNDCOLOR={BACKGROUND_COLOR}
-        />
-        <View style={styles.contentContainer}>
-          <Foregroundservice />
-          <Text>Accelerometer:</Text>
-          <Text>x: {accData.x}</Text>
-          <Text>y: {accData.y}</Text>
-          <Text>z: {accData.z}</Text>
-          <Text>timestamp: {accData.timestamp}</Text>
-          <Text>Gyroscope:</Text>
-          <Text>x: {gyroData.x}</Text>
-          <Text>y: {gyroData.y}</Text>
-          <Text>z: {gyroData.z}</Text>
-          <Text>timestamp: {gyroData.timestamp}</Text>
-          <Text>Magnetometer:</Text>
-          <Text>x: {magData.x}</Text>
-          <Text>y: {magData.y}</Text>
-          <Text>z: {magData.z}</Text>
-          <Text>timestamp: {magData.timestamp}</Text>
-          <Text>Light: {light}</Text>
-          <Text>light in data: {allData.light}</Text>
-        </View>
-        <Getdata
-          SCREEN_WIDTH={SCREEN_WIDTH}
-          BACKGROUNDCOLOR={BACKGROUND_COLOR}
-          data={allData}
-        />
-      </ScrollView>
-    </View>
+    <NativeBaseProvider>
+      <View style={styles.container}>
+        <ScrollView
+          contentContainerstyle={styles.scrollView}
+          horizontal
+          pagingEnabled>
+          <LoginPage
+            SCREEN_WIDTH={SCREEN_WIDTH}
+            BACKGROUNDCOLOR={BACKGROUND_COLOR}
+          />
+          <View style={styles.contentContainer}>
+            <Foregroundservice />
+            <Text>Accelerometer:</Text>
+            <Text>x: {accData.x}</Text>
+            <Text>y: {accData.y}</Text>
+            <Text>z: {accData.z}</Text>
+            <Text>timestamp: {accData.timestamp}</Text>
+            <Text>Gyroscope:</Text>
+            <Text>x: {gyroData.x}</Text>
+            <Text>y: {gyroData.y}</Text>
+            <Text>z: {gyroData.z}</Text>
+            <Text>timestamp: {gyroData.timestamp}</Text>
+            <Text>Magnetometer:</Text>
+            <Text>x: {magData.x}</Text>
+            <Text>y: {magData.y}</Text>
+            <Text>z: {magData.z}</Text>
+            <Text>timestamp: {magData.timestamp}</Text>
+            <Text>Light: {light}</Text>
+            <Text>light in data: {allData.light}</Text>
+          </View>
+          <Getdata
+            SCREEN_WIDTH={SCREEN_WIDTH}
+            BACKGROUNDCOLOR={BACKGROUND_COLOR}
+            data={allData}
+          />
+        </ScrollView>
+      </View>
+    </NativeBaseProvider>
   );
 }
 

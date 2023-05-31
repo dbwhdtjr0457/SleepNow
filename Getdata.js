@@ -15,44 +15,44 @@ export const Getdata = props => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (training_data.length === 0 || test_data.length === 0) {
-      console.log('First fetch');
-      if (auth().currentUser === null) {
-        console.log('No user logged in');
-      } else {
-        firestore()
-          .collection(auth().currentUser.email)
-          .get()
-          .then(querySnapshot => {
-            const data = querySnapshot.docs.map(doc => {
-              const convertedData = {
-                awake: doc.data().awake,
-                light: doc.data().light.toFixed(0),
-                accX: doc.data().s_acc.x.toFixed(0),
-                accY: doc.data().s_acc.y.toFixed(0),
-                accZ: doc.data().s_acc.z.toFixed(0),
-                gyroX: doc.data().s_gyro.x.toFixed(0),
-                gyroY: doc.data().s_gyro.y.toFixed(0),
-                gyroZ: doc.data().s_gyro.z.toFixed(0),
-                magX: doc.data().s_mag.x.toFixed(0),
-                magY: doc.data().s_mag.y.toFixed(0),
-                magZ: doc.data().s_mag.z.toFixed(0),
-              };
-              return convertedData;
-            });
-            return data;
-          })
-          .then(data => {
-            setTraining_data(data.slice(0, Math.floor(data.length * 0.8)));
-            setTest_data(
-              data.slice(Math.floor(data.length * 0.8), data.length),
-            );
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      }
-    }
+    // if (training_data.length === 0 || test_data.length === 0) {
+    //   console.log('First fetch');
+    //   if (auth().currentUser === null) {
+    //     console.log('No user logged in');
+    //   } else {
+    //     firestore()
+    //       .collection(auth().currentUser.email)
+    //       .get()
+    //       .then(querySnapshot => {
+    //         const data = querySnapshot.docs.map(doc => {
+    //           const convertedData = {
+    //             awake: doc.data().awake,
+    //             light: doc.data().light.toFixed(0),
+    //             accX: doc.data().s_acc.x.toFixed(0),
+    //             accY: doc.data().s_acc.y.toFixed(0),
+    //             accZ: doc.data().s_acc.z.toFixed(0),
+    //             gyroX: doc.data().s_gyro.x.toFixed(0),
+    //             gyroY: doc.data().s_gyro.y.toFixed(0),
+    //             gyroZ: doc.data().s_gyro.z.toFixed(0),
+    //             magX: doc.data().s_mag.x.toFixed(0),
+    //             magY: doc.data().s_mag.y.toFixed(0),
+    //             magZ: doc.data().s_mag.z.toFixed(0),
+    //           };
+    //           return convertedData;
+    //         });
+    //         return data;
+    //       })
+    //       .then(data => {
+    //         setTraining_data(data.slice(0, Math.floor(data.length * 0.8)));
+    //         setTest_data(
+    //           data.slice(Math.floor(data.length * 0.8), data.length),
+    //         );
+    //       })
+    //       .catch(error => {
+    //         console.log(error);
+    //       });
+    //   }
+    // }
   }, []);
 
   useEffect(() => {
@@ -92,6 +92,47 @@ export const Getdata = props => {
     }
   }, 1000);
 
+  const getData = () => {
+    if (training_data.length === 0 || test_data.length === 0) {
+      console.log('First fetch');
+      if (auth().currentUser === null) {
+        console.log('No user logged in');
+      } else {
+        firestore()
+          .collection(auth().currentUser.email)
+          .get()
+          .then(querySnapshot => {
+            const data = querySnapshot.docs.map(doc => {
+              const convertedData = {
+                awake: doc.data().awake,
+                light: doc.data().light.toFixed(0),
+                accX: doc.data().s_acc.x.toFixed(0),
+                accY: doc.data().s_acc.y.toFixed(0),
+                accZ: doc.data().s_acc.z.toFixed(0),
+                gyroX: doc.data().s_gyro.x.toFixed(0),
+                gyroY: doc.data().s_gyro.y.toFixed(0),
+                gyroZ: doc.data().s_gyro.z.toFixed(0),
+                magX: doc.data().s_mag.x.toFixed(0),
+                magY: doc.data().s_mag.y.toFixed(0),
+                magZ: doc.data().s_mag.z.toFixed(0),
+              };
+              return convertedData;
+            });
+            return data;
+          })
+          .then(data => {
+            setTraining_data(data.slice(0, Math.floor(data.length * 0.8)));
+            setTest_data(
+              data.slice(Math.floor(data.length * 0.8), data.length),
+            );
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
+    }
+  };
+
   return (
     <View style={styles(props).container}>
       {auth().currentUser === null ? (
@@ -103,6 +144,12 @@ export const Getdata = props => {
             onPress={() => {
               console.log(training_data);
               console.log(test_data);
+            }}
+          />
+          <Button
+            title="getData"
+            onPress={() => {
+              getData();
             }}
           />
           {isLoading ? (
