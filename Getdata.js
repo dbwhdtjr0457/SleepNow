@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Button, Text} from 'react-native';
+import {View, Button, Text, ToastAndroid} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -116,6 +116,7 @@ export const Getdata = props => {
   useEffect(() => {
     if (isSleep) {
       onDisplayNotification();
+      showToast();
     }
   }, [isSleep]);
 
@@ -156,6 +157,14 @@ export const Getdata = props => {
     }
   };
 
+  const showToast = () => {
+    ToastAndroid.showWithGravity(
+      '자려고 누웠으면 자야죠!',
+      ToastAndroid.LONG,
+      ToastAndroid.TOP,
+    );
+  };
+
   return (
     <View>
       {auth().currentUser === null ? (
@@ -188,6 +197,7 @@ export const Getdata = props => {
           <Text>sleepCount: {sleepCount}</Text>
         </View>
       )}
+      <Button title="showToast" onPress={showToast} />
     </View>
   );
 };
