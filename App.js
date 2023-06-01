@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   Appearance,
+  Alert,
 } from 'react-native';
 import {
   accelerometer,
@@ -21,6 +22,7 @@ import {
 } from 'react-native-ambient-light-sensor';
 import {throttle} from 'lodash';
 import {NativeBaseProvider} from 'native-base';
+import notifee from '@notifee/react-native';
 
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
@@ -68,7 +70,35 @@ export default function App() {
     magZ: magData.z.toFixed(0),
   };
 
+  const optimizationCheck = async () => {
+    // 1. checks if battery optimization is enabled
+    const batteryOptimizationEnabled =
+      await notifee.isBatteryOptimizationEnabled();
+    if (batteryOptimizationEnabled) {
+      // 2. ask your users to disable the feature
+      Alert.alert(
+        'Restrictions Detected',
+        'To ensure notifications are delivered, please disable battery optimization for the app.',
+        [
+          // 3. launch intent to navigate the user to the appropriate screen
+          {
+            text: 'OK, open settings',
+            onPress: async () =>
+              await notifee.openBatteryOptimizationSettings(),
+          },
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+        ],
+        {cancelable: false},
+      );
+    }
+  };
+
   useEffect(() => {
+    optimizationCheck();
     startLightSensor();
     const subscription = DeviceEventEmitter.addListener(
       'LightSensor',
@@ -127,13 +157,12 @@ export default function App() {
             <Text>z: {magData.z}</Text>
             <Text>timestamp: {magData.timestamp}</Text>
             <Text>Light: {light}</Text>
-            <Text>light in data: {allData.light}</Text>
+            <Getdata
+              SCREEN_WIDTH={SCREEN_WIDTH}
+              BACKGROUNDCOLOR={BACKGROUND_COLOR}
+              data={allData}
+            />
           </View>
-          <Getdata
-            SCREEN_WIDTH={SCREEN_WIDTH}
-            BACKGROUNDCOLOR={BACKGROUND_COLOR}
-            data={allData}
-          />
         </ScrollView>
       </View>
     </NativeBaseProvider>

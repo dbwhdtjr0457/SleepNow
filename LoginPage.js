@@ -11,8 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 
 export const LoginPage = props => {
-  const [email, setEmail] = useState('asdf');
-  const [password, setPassword] = useState('asdf');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
 
@@ -34,8 +34,9 @@ export const LoginPage = props => {
             });
         }
       })
-      .catch(err => {
-        setError(err.message);
+      .catch(() => {
+        console.log('No user data');
+        AsyncStorage.setItem('userData', JSON.stringify({isLogin: false}));
       });
 
     auth().onAuthStateChanged(user => {
