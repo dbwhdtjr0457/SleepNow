@@ -3,30 +3,44 @@ import {View, Button, Text, ToastAndroid} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PushNotification, {Importance} from 'react-native-push-notification';
 import notifee from '@notifee/react-native';
 
 import useInterval from './useInterval';
 const DecisionTree = require('decision-tree');
 
-async function onDisplayNotification() {
-  // Request permissions (required for iOS)
-  await notifee.requestPermission();
+async function onPushNotification() {
+  PushNotification.createChannel(
+    {
+      channelId: 'channel-id3', // (required)
+      channelName: 'My channel', // (required)
+      channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+      playSound: false, // (optional) default: true
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+    },
+    created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+  );
 
-  // Create a channel (required for Android)
+  await PushNotification.localNotification({
+    channelId: 'channel-id3',
+    message: '잘 때까지 알림을 보낼께요!',
+  });
+}
+
+async function onDisplayNotification() {
   const channelId = await notifee.createChannel({
-    id: 'default',
-    name: 'Default Channel',
+    id: 'channel-id2',
+    name: 'My Channel',
   });
 
-  // Display a notification
   await notifee.displayNotification({
-    title: '자려고 누웠나요?',
-    body: '자기 전까지 알림을 보낼꺼에요!',
-    subtitle: '잘 시간이에요!',
+    title: '잘 때까지 알림을 보낼께요!',
     android: {
       channelId,
-      showTimestamp: true,
-      showChronometer: true,
+      ongoing: true,
+      asForegroundService: true,
     },
   });
 }
@@ -108,14 +122,15 @@ export const Getdata = props => {
           setIsSleep(true);
         }
       }
+      console.log(predResult);
       console.log(awakeCount, sleepCount);
-      //   console.log(predResult);
+      console.log(props.data.light);
     }
   }, 1000);
 
   useEffect(() => {
     if (isSleep) {
-      onDisplayNotification();
+      onPushNotification();
       showToast();
     }
   }, [isSleep]);
@@ -198,6 +213,14 @@ export const Getdata = props => {
         </View>
       )}
       <Button title="showToast" onPress={showToast} />
+      <Button title="Test push notification" onPress={onPushNotification} />
+      <Button title="start service" onPress={onDisplayNotification} />
+      <Button
+        title="stop service"
+        onPress={() => {
+          notifee.stopForegroundService();
+        }}
+      />
     </View>
   );
 };

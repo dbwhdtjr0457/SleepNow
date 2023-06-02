@@ -109,42 +109,6 @@ export default function Foregroundservice() {
     }
   }, 1000);
 
-  notifee.registerForegroundService(notification => {
-    return new Promise(() => {
-      startLightSensor();
-      setUpdateIntervalForType(SensorTypes.accelerometer, 1000);
-      setUpdateIntervalForType(SensorTypes.gyroscope, 1000);
-      setUpdateIntervalForType(SensorTypes.magnetometer, 1000);
-
-      setLuxsubscription(
-        DeviceEventEmitter.addListener(
-          'LightSensor',
-          throttle(data => {
-            setLight(data.lightValue);
-          }, 1000),
-        ),
-      );
-
-      setAccSubscription(
-        accelerometer.subscribe(({x, y, z, timestamp}) => {
-          setAccData({x, y, z, timestamp});
-        }),
-      );
-
-      setGyroSubscription(
-        gyroscope.subscribe(({x, y, z, timestamp}) => {
-          setGyroData({x, y, z, timestamp});
-        }),
-      );
-
-      setMagSubscription(
-        magnetometer.subscribe(({x, y, z, timestamp}) => {
-          setMagData({x, y, z, timestamp});
-        }),
-      );
-    });
-  });
-
   async function onDisplayNotification() {
     // Request permissions (required for iOS)
     await notifee.requestPermission();
@@ -155,11 +119,44 @@ export default function Foregroundservice() {
       name: 'Default Channel',
     });
 
+    startLightSensor();
+    setUpdateIntervalForType(SensorTypes.accelerometer, 1000);
+    setUpdateIntervalForType(SensorTypes.gyroscope, 1000);
+    setUpdateIntervalForType(SensorTypes.magnetometer, 1000);
+
+    setLuxsubscription(
+      DeviceEventEmitter.addListener(
+        'LightSensor',
+        throttle(data => {
+          setLight(data.lightValue);
+        }, 1000),
+      ),
+    );
+
+    setAccSubscription(
+      accelerometer.subscribe(({x, y, z, timestamp}) => {
+        setAccData({x, y, z, timestamp});
+      }),
+    );
+
+    setGyroSubscription(
+      gyroscope.subscribe(({x, y, z, timestamp}) => {
+        setGyroData({x, y, z, timestamp});
+      }),
+    );
+
+    setMagSubscription(
+      magnetometer.subscribe(({x, y, z, timestamp}) => {
+        setMagData({x, y, z, timestamp});
+      }),
+    );
+
     // Display a notification
     await notifee.displayNotification({
       title: '데이터 수집 중...',
       body: 'sleepnow가 데이터를 수집하고 있습니다.',
       android: {
+        ongoing: true,
         channelId,
         // pressAction is needed if you want the notification to open the app when pressed
         asForegroundService: true,
@@ -185,11 +182,11 @@ export default function Foregroundservice() {
   return (
     <View>
       <Button
-        title="Start Foreground Service"
+        title="Start uploading data"
         onPress={() => onDisplayNotification()}
       />
       <Button
-        title="Stop Foreground Service"
+        title="Stop uploading data"
         onPress={() => {
           setAccSubscription(accSubscription => {
             accSubscription?.unsubscribe();
@@ -203,7 +200,6 @@ export default function Foregroundservice() {
             magSubscription?.unsubscribe();
             return null;
           });
-          stopLightSensor();
           setLuxsubscription(luxsubscription => {
             luxsubscription?.remove();
             return null;
