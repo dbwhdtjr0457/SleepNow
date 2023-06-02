@@ -76,12 +76,12 @@ export const LoginPage = props => {
 
   return (
     <View style={styles(props).contentContainer}>
-      <Text>Login Page</Text>
+      <Text style={styles(props).Text}>Login Page</Text>
       {isLogin ? (
-        <Text>Logged In</Text>
+        <Text style={styles(props).Text}>Logged In</Text>
       ) : (
         <View>
-          <Text>Not Logged In</Text>
+          <Text style={styles(props).Text}>Not Logged In</Text>
           <TextInput
             style={styles(props).input}
             placeholder="Email"
@@ -111,10 +111,14 @@ export const LoginPage = props => {
                   setError(err.message);
                 });
         }}>
-        {isLogin ? <Text>Logout</Text> : <Text>Login</Text>}
+        {isLogin ? (
+          <Text style={styles(props).Text}>Logout</Text>
+        ) : (
+          <Text style={styles(props).Text}>Login</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity>
-        <Text>Forgot Password?</Text>
+        <Text style={styles(props).Text}>Forgot Password?</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={async () => {
@@ -124,7 +128,7 @@ export const LoginPage = props => {
               setError(err.message);
             });
         }}>
-        <Text>Sign Up</Text>
+        <Text style={styles(props).Text}>Sign Up</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
@@ -132,13 +136,13 @@ export const LoginPage = props => {
             Alert.alert('AsyncStorage', data);
           });
         }}>
-        <Text>check AsyncStorage</Text>
+        <Text style={styles(props).Text}>check AsyncStorage</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
           console.log(auth().currentUser);
         }}>
-        <Text>check auth().currentUser</Text>
+        <Text style={styles(props).Text}>check auth().currentUser</Text>
       </TouchableOpacity>
     </View>
   );
@@ -160,11 +164,15 @@ const styles = props =>
       padding: 10,
       borderWidth: 1,
       borderColor: 'gray',
+      fontSize: 15,
     },
     login: {
       alignItems: 'center',
       backgroundColor: 'gray',
       padding: 10,
       width: 200,
+    },
+    Text: {
+      fontSize: 15,
     },
   });

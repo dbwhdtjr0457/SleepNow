@@ -26,6 +26,7 @@ async function onPushNotification() {
   await PushNotification.localNotification({
     channelId: 'channel-id3',
     message: '잘 때까지 알림을 보낼께요!',
+    vibrate: true,
   });
 }
 
@@ -36,7 +37,7 @@ async function onDisplayNotification() {
   });
 
   await notifee.displayNotification({
-    title: '잘 때까지 알림을 보낼께요!',
+    title: '센서 데이터로 자세 분석 중..',
     android: {
       channelId,
       ongoing: true,
