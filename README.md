@@ -20,7 +20,9 @@
 - 실시간 센서 값을 통해 수면 직전 여부를 판단
 - 스마트폰을 사용하지 않고 바로 잘 것을 유도하는 서비스 개발
 ## 개발 언어 및 도구
-<img src="https://img.shields.io/badge/아이콘내용-blue?style=flat&logo=React&logoColor=white"/>
+<img src="https://img.shields.io/badge/React Native-blue?style=flat&logo=React&logoColor=white"/>
+<img src="https://img.shields.io/badge/React Native-blue?style=flat&logo=React&logoColor=white"/>
+<img src="https://img.shields.io/badge/React Native-blue?style=flat&logo=React&logoColor=white"/>
 ## 개발 세부 과정 및 내용
 ## 개발 결과
 ## 시연 영상
