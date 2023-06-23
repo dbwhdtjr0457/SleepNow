@@ -26,7 +26,7 @@
 <img src="https://img.shields.io/badge/Firebase-yellow?style=flat&logo=Firebase&logoColor=white"/> <img src="https://img.shields.io/badge/VSCode-blue?style=flat&logo=Visual Studio Code&logoColor=white"/>
 
 ### 외부 라이브러리
-
+nodejs-decision-tree(https://github.com/serendipious/nodejs-decision-tree)
 
 ## 개발 결과
 | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/88da728f-50d2-4a57-a2dd-8febd7eb8191) | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/3fc2a90a-6701-4323-a4f3-36e7dfa84506) |
@@ -61,3 +61,4 @@ https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/79e9cf9d-aee9-4f68-b748
 - 성취감을 주는 요소 제공 (ex: Forest 키우기, 연속 수면일 streak)
 - 스마트폰 사용 시 지인에게 메시지 자동 발송
 - 커스텀 동기부여 메시지 설정, 이후 notification에 출력
+)
