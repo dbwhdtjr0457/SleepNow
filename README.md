@@ -29,8 +29,12 @@
 | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/88da728f-50d2-4a57-a2dd-8febd7eb8191) | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/3fc2a90a-6701-4323-a4f3-36e7dfa84506) |
 |----|----|
 
+Sleep Now 앱 실행 시 나오는 로그인 페이지. 로그인이 되어있지 않은 경우(좌측 이미지) 회원가입을 하거나 로그인을 진행하면 로그인된 화면(우측 이미지)를 출력한다.
+
 | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/7afed38d-5a0d-4ce1-a31a-0658d599e0c9) | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/362403b6-6613-40aa-a6d7-1fd4a469828e) |
 |----|----|
+
+백그라운드에서 앱이 지속적으로 동작하고 있는 화면(좌측 이미지). 서비스가 동작하고 있을 때 사용자의 자세를 실시간으로 수집하고 분석하여 사용자의 상황을 예측하고, 수면 직전 상황이라고 판단할 경우 소리, 진동과 함께 notification을 출력함(우측 이미지).
 
 ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/64584de1-1356-4e23-a363-c84fc7673c57)
 
