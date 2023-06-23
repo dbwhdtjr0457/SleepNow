@@ -28,3 +28,7 @@
 ## 개발 결과
 ## 시연 영상
 ## 향후 계획
+
+https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/a6c8c94d-8db7-4fff-b703-8d9a15967d5d
+
+
