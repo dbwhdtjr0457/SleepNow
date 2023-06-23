@@ -1,5 +1,5 @@
 # Sleep Now!
-[SleepNow](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/a1f2ffeb-59e4-4ef8-912b-14acc660f39e)
+![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/a1f2ffeb-59e4-4ef8-912b-14acc660f39e)
 
 ### 소프트웨어융합캡스톤디자인 프로젝트
 #### 소프트웨어융합학과 2019102111 유종석
