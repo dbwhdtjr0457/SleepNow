@@ -27,10 +27,15 @@
 
 ### 외부 라이브러리
 - [react-native-sensors](https://github.com/react-native-sensors/react-native-sensors)
-  asdfasdf
-- [nodejs-decision-tree](https://github.com/serendipious/nodejs-decision-tree)
-- [notifee](https://notifee.app/)
+  - Accelerometer, Gyroscope, Magnetometer 활용
 - [react-native-ambient-light-sensor](https://github.com/Cshayan/react-native-ambient-light-sensor)
+  - Light sensor 활용
+- [nodejs-decision-tree](https://github.com/serendipious/nodejs-decision-tree)
+  - 개인 맞춤 서비스를 위한 decision tree 모델 수립을 위해 활용
+- [notifee](https://notifee.app/)
+  - Foreground Service, Push Notification 활용
+- [react-native-async-storage](https://github.com/react-native-async-storage/async-storage)
+  - 자동 로그인, 데이터 로딩 최적화 및 비용 감소에 활용
 
 ## 개발 결과
 | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/88da728f-50d2-4a57-a2dd-8febd7eb8191) | ![image](https://github.com/dbwhdtjr0457/SleepNow/assets/49023654/3fc2a90a-6701-4323-a4f3-36e7dfa84506) |
