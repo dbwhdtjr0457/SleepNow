@@ -27,7 +27,9 @@
 
 ### 외부 라이브러리
 - [react-native-sensors](https://github.com/react-native-sensors/react-native-sensors)
+  asdfasdf
 - [nodejs-decision-tree](https://github.com/serendipious/nodejs-decision-tree)
+- [notifee](https://notifee.app/)
 - [react-native-ambient-light-sensor](https://github.com/Cshayan/react-native-ambient-light-sensor)
 
 ## 개발 결과
