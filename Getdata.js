@@ -56,6 +56,7 @@ export const Getdata = props => {
   const [awakeCount, setAwakeCount] = useState(0);
   const [sleepCount, setSleepCount] = useState(0);
   const [isSleep, setIsSleep] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('data_set')
@@ -105,27 +106,33 @@ export const Getdata = props => {
   }, [dt]);
 
   useInterval(() => {
-    if (dt) {
-      setPredResult(dt.predict(props.data));
-      if (predResult === true) {
-        setAwakeCount(awakeCount + 1);
-        if (awakeCount === 15) {
-          setAwakeCount(0);
-          setSleepCount(0);
-          setIsSleep(false);
+    // 20시부터 4시까지만 작동함.
+    if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
+      setIsActive(true);
+      if (dt) {
+        setPredResult(dt.predict(props.data));
+        if (predResult === true) {
+          setAwakeCount(awakeCount + 1);
+          if (awakeCount === 15) {
+            setAwakeCount(0);
+            setSleepCount(0);
+            setIsSleep(false);
+          }
+        } else {
+          setSleepCount(sleepCount + 1);
+          if (sleepCount === 15) {
+            setAwakeCount(0);
+            setSleepCount(0);
+            setIsSleep(false);
+            setIsSleep(true);
+          }
         }
-      } else {
-        setSleepCount(sleepCount + 1);
-        if (sleepCount === 15) {
-          setAwakeCount(0);
-          setSleepCount(0);
-          setIsSleep(false);
-          setIsSleep(true);
-        }
+        console.log(predResult);
+        console.log(awakeCount, sleepCount);
+        console.log(props.data.light);
       }
-      console.log(predResult);
-      console.log(awakeCount, sleepCount);
-      console.log(props.data.light);
+    } else {
+      setIsActive(false);
     }
   }, 1000);
 
@@ -189,15 +196,9 @@ export const Getdata = props => {
       ) : (
         <View>
           <Button
-            title="checkData"
-            onPress={() => {
-              console.log(training_data);
-              console.log(test_data);
-            }}
-          />
-          <Button
             title="updateData"
             onPress={() => {
+              setIsLoading(true);
               getData();
             }}
           />
@@ -210,8 +211,14 @@ export const Getdata = props => {
               <Text>accuracy: {accuracy}</Text>
             </View>
           )}
-          <Text>awakeCount: {awakeCount}</Text>
-          <Text>sleepCount: {sleepCount}</Text>
+          {isActive ? (
+            <View>
+              <Text>awakeCount: {awakeCount}</Text>
+              <Text>sleepCount: {sleepCount}</Text>
+            </View>
+          ) : (
+            <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
+          )}
         </View>
       )}
       <Button title="showToast" onPress={showToast} />

@@ -23,7 +23,6 @@ import {
 import {throttle} from 'lodash';
 import {NativeBaseProvider} from 'native-base';
 import notifee from '@notifee/react-native';
-import Toast from 'react-native-toast-message';
 
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
@@ -166,7 +165,6 @@ export default function App() {
           </View>
         </ScrollView>
       </View>
-      <Toast />
     </NativeBaseProvider>
   );
 }
