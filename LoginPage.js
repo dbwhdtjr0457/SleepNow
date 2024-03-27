@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
@@ -76,6 +77,7 @@ export const LoginPage = props => {
 
   return (
     <View style={styles(props).contentContainer}>
+      <Image source={require('./assets/logo.png')} style={styles(props).logo} />
       <Text style={styles(props).Text}>Login Page</Text>
       {isLogin ? (
         <Text style={styles(props).Text}>Logged In</Text>
@@ -174,5 +176,9 @@ const styles = props =>
     },
     Text: {
       fontSize: 15,
+    },
+    logo: {
+      width: 300,
+      height: 300,
     },
   });
