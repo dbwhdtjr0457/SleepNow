@@ -145,6 +145,7 @@ export const Getdata = props => {
         .collection(auth().currentUser.email)
         .get()
         .then(querySnapshot => {
+          console.log(querySnapshot.docs.length);
           const data = querySnapshot.docs.map(doc => {
             const convertedData = {
               awake: doc.data().awake,
