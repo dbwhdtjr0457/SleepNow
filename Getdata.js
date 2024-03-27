@@ -55,7 +55,6 @@ export const Getdata = props => {
   const [isLoading, setIsLoading] = useState(true);
   const [awakeCount, setAwakeCount] = useState(0);
   const [sleepCount, setSleepCount] = useState(0);
-  const [isSleep, setIsSleep] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -91,11 +90,11 @@ export const Getdata = props => {
         'magY',
         'magZ',
       ];
-      const dt = new DecisionTree(training_data, class_name, features);
-      dt.train(training_data);
-      const accuracy = dt.evaluate(test_data);
-      setDt(dt);
-      setAccuracy(accuracy);
+      const newDt = new DecisionTree(training_data, class_name, features);
+      newDt.train(training_data);
+      const newAccuracy = newDt.evaluate(test_data);
+      setDt(newDt);
+      setAccuracy(newAccuracy);
     }
   }, [test_data]);
 
@@ -116,15 +115,14 @@ export const Getdata = props => {
           if (awakeCount === 15) {
             setAwakeCount(0);
             setSleepCount(0);
-            setIsSleep(false);
           }
         } else {
           setSleepCount(sleepCount + 1);
           if (sleepCount === 15) {
             setAwakeCount(0);
             setSleepCount(0);
-            setIsSleep(false);
-            setIsSleep(true);
+            onPushNotification();
+            showToast();
           }
         }
         console.log(predResult);
@@ -135,13 +133,6 @@ export const Getdata = props => {
       setIsActive(false);
     }
   }, 1000);
-
-  useEffect(() => {
-    if (isSleep) {
-      onPushNotification();
-      showToast();
-    }
-  }, [isSleep]);
 
   const getData = () => {
     console.log('Fetch data');
