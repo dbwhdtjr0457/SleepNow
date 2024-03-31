@@ -21,8 +21,9 @@ import {
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
 import {throttle} from 'lodash';
-import {NativeBaseProvider} from 'native-base';
+import {Button, NativeBaseProvider} from 'native-base';
 import notifee from '@notifee/react-native';
+import {PermissionsAndroid} from 'react-native';
 
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
@@ -99,6 +100,10 @@ export default function App() {
 
   useEffect(() => {
     optimizationCheck();
+    PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    ]);
     startLightSensor();
     const subscription = DeviceEventEmitter.addListener(
       'LightSensor',
@@ -145,18 +150,14 @@ export default function App() {
             <Text>x: {accData.x}</Text>
             <Text>y: {accData.y}</Text>
             <Text>z: {accData.z}</Text>
-            <Text>timestamp: {accData.timestamp}</Text>
             <Text>Gyroscope:</Text>
             <Text>x: {gyroData.x}</Text>
             <Text>y: {gyroData.y}</Text>
             <Text>z: {gyroData.z}</Text>
-            <Text>timestamp: {gyroData.timestamp}</Text>
             <Text>Magnetometer:</Text>
             <Text>x: {magData.x}</Text>
             <Text>y: {magData.y}</Text>
             <Text>z: {magData.z}</Text>
-            <Text>timestamp: {magData.timestamp}</Text>
-            <Text>Light: {light}</Text>
             <Getdata
               SCREEN_WIDTH={SCREEN_WIDTH}
               BACKGROUNDCOLOR={BACKGROUND_COLOR}

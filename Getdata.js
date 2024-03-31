@@ -5,6 +5,7 @@ import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotification, {Importance} from 'react-native-push-notification';
 import notifee from '@notifee/react-native';
+import Geolocation from 'react-native-geolocation-service';
 
 import useInterval from './useInterval';
 const DecisionTree = require('decision-tree');
@@ -56,6 +57,102 @@ export const Getdata = props => {
   const [awakeCount, setAwakeCount] = useState(0);
   const [sleepCount, setSleepCount] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [homePosition, setHomePosition] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
+  const [position, setPosition] = useState({
+    // 37.4667, 127.1012
+    latitude: 0,
+    longitude: 0,
+  });
+  const [distance, setDistance] = useState(0);
+  const [isFar, setIsFar] = useState(false);
+
+  // getPosition
+  const getPosition = () => {
+    Geolocation.getCurrentPosition(
+      positionData => {
+        setPosition({
+          latitude: positionData.coords.latitude,
+          longitude: positionData.coords.longitude,
+        });
+      },
+      error => {
+        console.log(error.code, error.message);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
+
+  // watchPosition
+  Geolocation.watchPosition(positionData => {
+    setPosition({
+      latitude: positionData.coords.latitude,
+      longitude: positionData.coords.longitude,
+    });
+  });
+
+  // save home position
+  const saveHomePosition = () => {
+    Geolocation.getCurrentPosition(
+      positionData => {
+        AsyncStorage.setItem(
+          'home_position',
+          JSON.stringify({
+            latitude: positionData.coords.latitude,
+            longitude: positionData.coords.longitude,
+          }),
+        );
+        setHomePosition({
+          latitude: positionData.coords.latitude,
+          longitude: positionData.coords.longitude,
+        });
+      },
+      error => {
+        console.log(error.code, error.message);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
+
+  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    const R = 6371; // 지구의 반지름(km)
+    const dLat = deg2rad(lat2 - lat1); // deg2rad 아래에 정의
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // 거리(km)
+    return d;
+  }
+
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  useEffect(() => {
+    // get distance between two points
+    if (position.latitude !== 0 && position.longitude !== 0) {
+      setDistance(
+        getDistanceFromLatLonInKm(
+          position.latitude,
+          position.longitude,
+          homePosition.latitude,
+          homePosition.longitude,
+        ),
+      );
+      if (distance > 0.1) {
+        setIsFar(true);
+      } else {
+        setIsFar(false);
+      }
+    }
+  }, [position, homePosition]);
 
   useEffect(() => {
     AsyncStorage.getItem('data_set')
@@ -67,6 +164,23 @@ export const Getdata = props => {
       .catch(error => {
         console.log(error);
       });
+
+    AsyncStorage.getItem('home_position')
+      .then(data => {
+        const home_position = JSON.parse(data);
+        console.log(
+          'home position: ' +
+            home_position.latitude +
+            ' ' +
+            home_position.longitude,
+        );
+        setHomePosition(home_position);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+
+    getPosition();
   }, []);
 
   useEffect(() => {
@@ -106,7 +220,8 @@ export const Getdata = props => {
 
   useInterval(() => {
     // 20시부터 4시까지만 작동함.
-    if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
+    // 집 위치에서 100m 이상 떨어져있으면 작동하지 않음.
+    if ((new Date().getHours() >= 20 || new Date().getHours() < 4) && !isFar) {
       setIsActive(true);
       if (dt) {
         setPredResult(dt.predict(props.data));
@@ -193,6 +308,9 @@ export const Getdata = props => {
               getData();
             }}
           />
+
+          <Button title="get position" onPress={getPosition} />
+          <Button title="set home position" onPress={saveHomePosition} />
           {isLoading ? (
             <Text>loading...</Text>
           ) : (
@@ -200,15 +318,24 @@ export const Getdata = props => {
               <Text>light: {props.data.light}</Text>
               <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
               <Text>accuracy: {accuracy}</Text>
+              <Text>latitude: {position?.latitude}</Text>
+              <Text>longitude: {position?.longitude}</Text>
+              <Text>home latitude: {homePosition?.latitude}</Text>
+              <Text>home longitude: {homePosition?.longitude}</Text>
+              <Text>distance: {(distance * 1000).toFixed(0)}m</Text>
             </View>
           )}
-          {isActive ? (
-            <View>
-              <Text>awakeCount: {awakeCount}</Text>
-              <Text>sleepCount: {sleepCount}</Text>
-            </View>
+          {!isFar ? (
+            isActive ? (
+              <View>
+                <Text>awakeCount: {awakeCount}</Text>
+                <Text>sleepCount: {sleepCount}</Text>
+              </View>
+            ) : (
+              <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
+            )
           ) : (
-            <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
+            <Text>집에서 100m 이내에 있어야 작동합니다!</Text>
           )}
         </View>
       )}
