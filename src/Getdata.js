@@ -72,7 +72,7 @@ export const Getdata = props => {
   });
   const [watchPositionId, setWatchPositionId] = useState(null);
   const [distance, setDistance] = useState(0);
-  const [isFar, setIsFar] = useState(false);
+  // const [isFar, setIsFar] = useState(false);
 
   // getPosition
   const getPosition = () => {
@@ -143,17 +143,7 @@ export const Getdata = props => {
     if (position.latitude !== 0 && position.longitude !== 0) {
       setDistance(distanceData);
     }
-
-    console.log('distance:', distanceData);
   }, [position, homePosition]);
-
-  useEffect(() => {
-    if (distance > 0.1) {
-      setIsFar(true);
-    } else {
-      setIsFar(false);
-    }
-  }, [distance]);
 
   useEffect(() => {
     AsyncStorage.getItem('data_set')
@@ -205,27 +195,6 @@ export const Getdata = props => {
     };
   }, []);
 
-  // test notification
-  async function testNotification() {
-    const channelId = await notifee.createChannel({
-      id: 'channel-id2',
-      name: 'My Channel',
-    });
-
-    await notifee.displayNotification({
-      title: 'Test Notification',
-      body: 'This is a test notification',
-      android: {
-        channelId,
-        smallIcon: 'ic_launcher',
-        pressAction: {
-          id: 'default',
-          launchActivity: 'default',
-        },
-      },
-    });
-  }
-
   useEffect(() => {
     if (training_data.length > 0 && test_data.length > 0) {
       console.log('training data length:', training_data.length);
@@ -240,9 +209,6 @@ export const Getdata = props => {
         'accX',
         'accY',
         'accZ',
-        // 'gyroX',
-        // 'gyroY',
-        // 'gyroZ',
         'magX',
         'magY',
         'magZ',
@@ -263,8 +229,7 @@ export const Getdata = props => {
 
   useInterval(() => {
     // 20시부터 4시까지만 작동함.
-    // 집 위치에서 100m 이상 떨어져있으면 작동하지 않음.
-    if ((new Date().getHours() >= 20 || new Date().getHours() < 4) && !isFar) {
+    if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
       setIsActive(true);
       if (dt) {
         setPredResult(dt.predict(props.data));
@@ -365,21 +330,16 @@ export const Getdata = props => {
               <Text>home latitude: {homePosition?.latitude}</Text>
               <Text>home longitude: {homePosition?.longitude}</Text>
               <Text>distance: {(distance * 1000).toFixed(0)}m</Text>
-              <Text>isFar: {isFar ? 'true' : 'false'}</Text>
             </View>
           )}
-          {!isFar ? (
-            isActive ? (
-              <View>
-                <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
-                <Text>awakeCount: {awakeCount}</Text>
-                <Text>sleepCount: {sleepCount}</Text>
-              </View>
-            ) : (
-              <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
-            )
+          {isActive ? (
+            <View>
+              <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
+              <Text>awakeCount: {awakeCount}</Text>
+              <Text>sleepCount: {sleepCount}</Text>
+            </View>
           ) : (
-            <Text>집에서 100m 이내에 있어야 작동합니다!</Text>
+            <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
           )}
         </View>
       )}
