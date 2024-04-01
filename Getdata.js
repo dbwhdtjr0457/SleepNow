@@ -66,6 +66,7 @@ export const Getdata = props => {
     latitude: 0,
     longitude: 0,
   });
+  const [watchPositionId, setWatchPositionId] = useState(null);
   const [distance, setDistance] = useState(0);
   const [isFar, setIsFar] = useState(false);
 
@@ -84,14 +85,6 @@ export const Getdata = props => {
       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
     );
   };
-
-  // watchPosition
-  Geolocation.watchPosition(positionData => {
-    setPosition({
-      latitude: positionData.coords.latitude,
-      longitude: positionData.coords.longitude,
-    });
-  });
 
   // save home position
   const saveHomePosition = () => {
@@ -136,23 +129,27 @@ export const Getdata = props => {
   }
 
   useEffect(() => {
+    const distanceData = getDistanceFromLatLonInKm(
+      position.latitude,
+      position.longitude,
+      homePosition.latitude,
+      homePosition.longitude,
+    );
     // get distance between two points
     if (position.latitude !== 0 && position.longitude !== 0) {
-      setDistance(
-        getDistanceFromLatLonInKm(
-          position.latitude,
-          position.longitude,
-          homePosition.latitude,
-          homePosition.longitude,
-        ),
-      );
-      if (distance > 0.1) {
-        setIsFar(true);
-      } else {
-        setIsFar(false);
-      }
+      setDistance(distanceData);
     }
+
+    console.log('distance:', distanceData);
   }, [position, homePosition]);
+
+  useEffect(() => {
+    if (distance > 0.1) {
+      setIsFar(true);
+    } else {
+      setIsFar(false);
+    }
+  }, [distance]);
 
   useEffect(() => {
     AsyncStorage.getItem('data_set')
@@ -181,7 +178,49 @@ export const Getdata = props => {
       });
 
     getPosition();
+
+    // watchPosition
+    setWatchPositionId(
+      Geolocation.watchPosition(
+        positionData => {
+          setPosition({
+            latitude: positionData.coords.latitude,
+            longitude: positionData.coords.longitude,
+          });
+        },
+        error => console.log(error),
+        {enableHighAccuracy: true, distanceFilter: 0, interval: 1000},
+      ),
+    );
+
+    return () => {
+      if (watchPositionId !== null) {
+        console.log('clear watch position');
+        Geolocation.clearWatch(watchPositionId);
+      }
+    };
   }, []);
+
+  // test notification
+  async function testNotification() {
+    const channelId = await notifee.createChannel({
+      id: 'channel-id2',
+      name: 'My Channel',
+    });
+
+    await notifee.displayNotification({
+      title: 'Test Notification',
+      body: 'This is a test notification',
+      android: {
+        channelId,
+        smallIcon: 'ic_launcher',
+        pressAction: {
+          id: 'default',
+          launchActivity: 'default',
+        },
+      },
+    });
+  }
 
   useEffect(() => {
     if (training_data.length > 0 && test_data.length > 0) {
@@ -316,18 +355,19 @@ export const Getdata = props => {
           ) : (
             <View>
               <Text>light: {props.data.light}</Text>
-              <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
               <Text>accuracy: {accuracy}</Text>
               <Text>latitude: {position?.latitude}</Text>
               <Text>longitude: {position?.longitude}</Text>
               <Text>home latitude: {homePosition?.latitude}</Text>
               <Text>home longitude: {homePosition?.longitude}</Text>
               <Text>distance: {(distance * 1000).toFixed(0)}m</Text>
+              <Text>isFar: {isFar ? 'true' : 'false'}</Text>
             </View>
           )}
           {!isFar ? (
             isActive ? (
               <View>
+                <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
                 <Text>awakeCount: {awakeCount}</Text>
                 <Text>sleepCount: {sleepCount}</Text>
               </View>
@@ -339,8 +379,8 @@ export const Getdata = props => {
           )}
         </View>
       )}
-      <Button title="showToast" onPress={showToast} />
-      <Button title="Test push notification" onPress={onPushNotification} />
+      {/* <Button title="showToast" onPress={showToast} />
+      <Button title="Test push notification" onPress={onPushNotification} /> */}
       <Button title="start service" onPress={onDisplayNotification} />
       <Button
         title="stop service"

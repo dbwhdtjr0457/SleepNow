@@ -21,7 +21,7 @@ import {
   stopLightSensor,
 } from 'react-native-ambient-light-sensor';
 import {throttle} from 'lodash';
-import {Button, NativeBaseProvider} from 'native-base';
+import {NativeBaseProvider} from 'native-base';
 import notifee from '@notifee/react-native';
 import {PermissionsAndroid} from 'react-native';
 
