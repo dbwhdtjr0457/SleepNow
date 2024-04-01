@@ -26,7 +26,7 @@ import notifee from '@notifee/react-native';
 import {PermissionsAndroid} from 'react-native';
 
 import Foregroundservice from './ForegroundService';
-import {LoginPage} from './LoginPage';
+import {LoginPage} from '../LoginPage';
 import {Getdata} from './Getdata';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');

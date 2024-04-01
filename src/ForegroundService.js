@@ -158,16 +158,13 @@ export default function Foregroundservice() {
       android: {
         ongoing: true,
         channelId,
-        // pressAction is needed if you want the notification to open the app when pressed
+
         asForegroundService: true,
-        actions: [
-          {
-            title: 'Stop',
-            pressAction: {
-              id: 'stop',
-            },
-          },
-        ],
+        // pressAction is needed if you want the notification to open the app when pressed
+        pressAction: {
+          id: 'default',
+          launchActivity: 'default',
+        },
       },
     });
   }

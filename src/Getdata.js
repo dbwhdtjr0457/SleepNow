@@ -43,6 +43,10 @@ async function onDisplayNotification() {
       channelId,
       ongoing: true,
       asForegroundService: true,
+      pressAction: {
+        id: 'default',
+        launchActivity: 'default',
+      },
     },
   });
 }
