@@ -77,7 +77,10 @@ export const LoginPage = props => {
 
   return (
     <View style={styles(props).contentContainer}>
-      <Image source={require('./assets/logo.png')} style={styles(props).logo} />
+      <Image
+        source={require('../assets/logo.png')}
+        style={styles(props).logo}
+      />
       <Text style={styles(props).Text}>Login Page</Text>
       {isLogin ? (
         <Text style={styles(props).Text}>Logged In</Text>
@@ -119,9 +122,6 @@ export const LoginPage = props => {
           <Text style={styles(props).Text}>Login</Text>
         )}
       </TouchableOpacity>
-      <TouchableOpacity>
-        <Text style={styles(props).Text}>Forgot Password?</Text>
-      </TouchableOpacity>
       <TouchableOpacity
         onPress={async () => {
           auth()
@@ -132,7 +132,7 @@ export const LoginPage = props => {
         }}>
         <Text style={styles(props).Text}>Sign Up</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => {
           AsyncStorage.getItem('userData').then(data => {
             Alert.alert('AsyncStorage', data);
@@ -145,7 +145,12 @@ export const LoginPage = props => {
           console.log(auth().currentUser);
         }}>
         <Text style={styles(props).Text}>check auth().currentUser</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Text>* 사용법 *</Text>
+      <Text>1. 이메일, 비밀번호 입력</Text>
+      <Text>2. 처음 로그인 시 Sign Up 버튼 클릭</Text>
+      <Text>3. 로그인 시 Login 버튼 클릭</Text>
+      <Text>4. 로그인 후 오른쪽으로 화면 넘기기</Text>
     </View>
   );
 };

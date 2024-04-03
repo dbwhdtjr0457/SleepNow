@@ -26,7 +26,7 @@ import notifee from '@notifee/react-native';
 import {PermissionsAndroid} from 'react-native';
 
 import Foregroundservice from './ForegroundService';
-import {LoginPage} from '../LoginPage';
+import {LoginPage} from './LoginPage';
 import {Getdata} from './Getdata';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
@@ -78,17 +78,17 @@ export default function App() {
     if (batteryOptimizationEnabled) {
       // 2. ask your users to disable the feature
       Alert.alert(
-        'Restrictions Detected',
-        'To ensure notifications are delivered, please disable battery optimization for the app.',
+        '배터리 제한 모드가 활성화되어있습니다.',
+        '앱이 정상적으로 작동하지 않을 수 있습니다. 배터리 제한 모드를 비활성화 해주세요.',
         [
           // 3. launch intent to navigate the user to the appropriate screen
           {
-            text: 'OK, open settings',
+            text: '설정',
             onPress: async () =>
               await notifee.openBatteryOptimizationSettings(),
           },
           {
-            text: 'Cancel',
+            text: '취소',
             onPress: () => console.log('Cancel Pressed'),
             style: 'cancel',
           },
@@ -144,26 +144,56 @@ export default function App() {
             SCREEN_WIDTH={SCREEN_WIDTH}
             BACKGROUNDCOLOR={BACKGROUND_COLOR}
           />
-          <View style={styles.contentContainer}>
-            <Foregroundservice />
-            <Text>Accelerometer:</Text>
-            <Text>x: {accData.x}</Text>
-            <Text>y: {accData.y}</Text>
-            <Text>z: {accData.z}</Text>
-            <Text>Gyroscope:</Text>
-            <Text>x: {gyroData.x}</Text>
-            <Text>y: {gyroData.y}</Text>
-            <Text>z: {gyroData.z}</Text>
-            <Text>Magnetometer:</Text>
-            <Text>x: {magData.x}</Text>
-            <Text>y: {magData.y}</Text>
-            <Text>z: {magData.z}</Text>
-            <Getdata
-              SCREEN_WIDTH={SCREEN_WIDTH}
-              BACKGROUNDCOLOR={BACKGROUND_COLOR}
-              data={allData}
-            />
-          </View>
+          <ScrollView>
+            <View style={styles.contentContainer}>
+              <Foregroundservice />
+              <Text>Accelerometer:</Text>
+              <Text>x: {accData.x}</Text>
+              <Text>y: {accData.y}</Text>
+              <Text>z: {accData.z}</Text>
+              <Text>Gyroscope:</Text>
+              <Text>x: {gyroData.x}</Text>
+              <Text>y: {gyroData.y}</Text>
+              <Text>z: {gyroData.z}</Text>
+              <Text>Magnetometer:</Text>
+              <Text>x: {magData.x}</Text>
+              <Text>y: {magData.y}</Text>
+              <Text>z: {magData.z}</Text>
+              <Text>light: {light}</Text>
+              <Getdata
+                SCREEN_WIDTH={SCREEN_WIDTH}
+                BACKGROUNDCOLOR={BACKGROUND_COLOR}
+                data={allData}
+              />
+              <Text>* 사용법 *</Text>
+              <Text>1. "데이터 업로드 시작" 버튼 터치</Text>
+              <Text>
+                2. 자고 있지 않거나 잘 때 "깨어있음/잠자기 전환" 버튼 터치
+              </Text>
+              <Text>(하루에서 이틀 정도 데이터를 모아주세요.)</Text>
+              <Text>3. "데이터 업로드 중지" 버튼 터치로 업로드 중지</Text>
+              <Text>4. "데이터 가져오기" 버튼 터치로 데이터 가져오고 분석</Text>
+              <Text>5. "자세 분류 서비스 시작" 버튼 터치로 서비스 시작</Text>
+              <Text>* 주의사항 *</Text>
+
+              <Text>1. 앱 최적화 설정을 해제해야 정상 작동합니다.</Text>
+              <Text>
+                2. 알람, GPS, 센서 사용 권한을 허용해야 정상 작동합니다.
+              </Text>
+              <Text>
+                3. 데이터 업로드와 자세 분류 서비스는 동시에 작동하지 않습니다.
+                데이터 업로드 중지 후 서비스 시작을 터치해주세요.
+              </Text>
+              <Text>
+                4. 데이터 업로드, 자세 분류 서비스 작동 시 알림바에
+                notification이 출력되는지 확인해주세요.
+              </Text>
+              <Text>
+                5. 앱을 완전히 종료하면 데이터 업로드, 자세 분류 서비스가
+                중지됩니다. 홈 버튼을 눌러 백그라운드로 전환해주세요.
+              </Text>
+            </View>
+          </ScrollView>
         </ScrollView>
       </View>
     </NativeBaseProvider>

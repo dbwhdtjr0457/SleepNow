@@ -179,11 +179,11 @@ export default function Foregroundservice() {
   return (
     <View>
       <Button
-        title="Start uploading data"
+        title="데이터 업로드 시작"
         onPress={() => onDisplayNotification()}
       />
       <Button
-        title="Stop uploading data"
+        title="데이터 업로드 중지"
         onPress={() => {
           setAccSubscription(accSubscription => {
             accSubscription?.unsubscribe();
@@ -212,7 +212,7 @@ export default function Foregroundservice() {
         }}
       />
       <Button
-        title="Toggle Awake"
+        title="깨어있음/잠자기 전환"
         onPress={() => {
           setAwake(!awake);
         }}

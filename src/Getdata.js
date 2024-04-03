@@ -31,7 +31,9 @@ async function onPushNotification() {
   });
 }
 
-async function onDisplayNotification() {
+async function onDisplayNotification(setIsServiceActive) {
+  await notifee.requestPermission();
+
   const channelId = await notifee.createChannel({
     id: 'channel-id2',
     name: 'My Channel',
@@ -49,6 +51,7 @@ async function onDisplayNotification() {
       },
     },
   });
+  setIsServiceActive(true);
 }
 
 export const Getdata = props => {
@@ -60,18 +63,19 @@ export const Getdata = props => {
   const [isLoading, setIsLoading] = useState(true);
   const [awakeCount, setAwakeCount] = useState(0);
   const [sleepCount, setSleepCount] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [homePosition, setHomePosition] = useState({
-    latitude: 0,
-    longitude: 0,
-  });
+  const [isActiveTime, setIsActiveTime] = useState(false);
+  const [isServiceActive, setIsServiceActive] = useState(false);
+  // const [homePosition, setHomePosition] = useState({
+  //   latitude: 0,
+  //   longitude: 0,
+  // });
   const [position, setPosition] = useState({
     // 37.4667, 127.1012
     latitude: 0,
     longitude: 0,
   });
   const [watchPositionId, setWatchPositionId] = useState(null);
-  const [distance, setDistance] = useState(0);
+  // const [distance, setDistance] = useState(0);
   // const [isFar, setIsFar] = useState(false);
 
   // getPosition
@@ -90,60 +94,60 @@ export const Getdata = props => {
     );
   };
 
-  // save home position
-  const saveHomePosition = () => {
-    Geolocation.getCurrentPosition(
-      positionData => {
-        AsyncStorage.setItem(
-          'home_position',
-          JSON.stringify({
-            latitude: positionData.coords.latitude,
-            longitude: positionData.coords.longitude,
-          }),
-        );
-        setHomePosition({
-          latitude: positionData.coords.latitude,
-          longitude: positionData.coords.longitude,
-        });
-      },
-      error => {
-        console.log(error.code, error.message);
-      },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    );
-  };
+  // // save home position
+  // const saveHomePosition = () => {
+  //   Geolocation.getCurrentPosition(
+  //     positionData => {
+  //       AsyncStorage.setItem(
+  //         'home_position',
+  //         JSON.stringify({
+  //           latitude: positionData.coords.latitude,
+  //           longitude: positionData.coords.longitude,
+  //         }),
+  //       );
+  //       setHomePosition({
+  //         latitude: positionData.coords.latitude,
+  //         longitude: positionData.coords.longitude,
+  //       });
+  //     },
+  //     error => {
+  //       console.log(error.code, error.message);
+  //     },
+  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+  //   );
+  // };
 
-  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    const R = 6371; // 지구의 반지름(km)
-    const dLat = deg2rad(lat2 - lat1); // deg2rad 아래에 정의
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c; // 거리(km)
-    return d;
-  }
+  // function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  //   const R = 6371; // 지구의 반지름(km)
+  //   const dLat = deg2rad(lat2 - lat1); // deg2rad 아래에 정의
+  //   const dLon = deg2rad(lon2 - lon1);
+  //   const a =
+  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+  //     Math.cos(deg2rad(lat1)) *
+  //       Math.cos(deg2rad(lat2)) *
+  //       Math.sin(dLon / 2) *
+  //       Math.sin(dLon / 2);
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //   const d = R * c; // 거리(km)
+  //   return d;
+  // }
 
-  function deg2rad(deg) {
-    return deg * (Math.PI / 180);
-  }
+  // function deg2rad(deg) {
+  //   return deg * (Math.PI / 180);
+  // }
 
-  useEffect(() => {
-    const distanceData = getDistanceFromLatLonInKm(
-      position.latitude,
-      position.longitude,
-      homePosition.latitude,
-      homePosition.longitude,
-    );
-    // get distance between two points
-    if (position.latitude !== 0 && position.longitude !== 0) {
-      setDistance(distanceData);
-    }
-  }, [position, homePosition]);
+  // useEffect(() => {
+  //   const distanceData = getDistanceFromLatLonInKm(
+  //     position.latitude,
+  //     position.longitude,
+  //     homePosition.latitude,
+  //     homePosition.longitude,
+  //   );
+  //   // get distance between two points
+  //   if (position.latitude !== 0 && position.longitude !== 0) {
+  //     setDistance(distanceData);
+  //   }
+  // }, [position, homePosition]);
 
   useEffect(() => {
     AsyncStorage.getItem('data_set')
@@ -156,20 +160,20 @@ export const Getdata = props => {
         console.log(error);
       });
 
-    AsyncStorage.getItem('home_position')
-      .then(data => {
-        const home_position = JSON.parse(data);
-        console.log(
-          'home position: ' +
-            home_position.latitude +
-            ' ' +
-            home_position.longitude,
-        );
-        setHomePosition(home_position);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    // AsyncStorage.getItem('home_position')
+    //   .then(data => {
+    //     const home_position = JSON.parse(data);
+    //     console.log(
+    //       'home position: ' +
+    //         home_position.latitude +
+    //         ' ' +
+    //         home_position.longitude,
+    //     );
+    //     setHomePosition(home_position);
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //   });
 
     getPosition();
 
@@ -230,30 +234,32 @@ export const Getdata = props => {
   useInterval(() => {
     // 20시부터 4시까지만 작동함.
     if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
-      setIsActive(true);
-      if (dt) {
-        setPredResult(dt.predict(props.data));
-        if (predResult === true) {
-          setAwakeCount(awakeCount + 1);
-          if (awakeCount === 15) {
-            setAwakeCount(0);
-            setSleepCount(0);
+      // if (true) {
+      setIsActiveTime(true);
+      if (isServiceActive) {
+        if (dt) {
+          setPredResult(dt.predict(props.data));
+          if (predResult === true) {
+            setAwakeCount(awakeCount + 1);
+            if (awakeCount === 15) {
+              setAwakeCount(0);
+              setSleepCount(0);
+            }
+          } else {
+            setSleepCount(sleepCount + 1);
+            if (sleepCount === 15) {
+              setAwakeCount(0);
+              setSleepCount(0);
+              onPushNotification();
+              showToast();
+            }
           }
-        } else {
-          setSleepCount(sleepCount + 1);
-          if (sleepCount === 15) {
-            setAwakeCount(0);
-            setSleepCount(0);
-            onPushNotification();
-            showToast();
-          }
+          console.log(predResult);
+          console.log(awakeCount, sleepCount);
+          console.log(props.data.light);
         }
-        console.log(predResult);
-        console.log(awakeCount, sleepCount);
-        console.log(props.data.light);
       }
     } else {
-      setIsActive(false);
     }
   }, 1000);
 
@@ -309,35 +315,38 @@ export const Getdata = props => {
         <Text>no user logged in, please log in and reload the app.</Text>
       ) : (
         <View>
+          <Text>latitude: {position?.latitude}</Text>
+          <Text>longitude: {position?.longitude}</Text>
           <Button
-            title="updateData"
+            title="데이터 가져오기"
             onPress={() => {
               setIsLoading(true);
               getData();
             }}
           />
 
-          <Button title="get position" onPress={getPosition} />
-          <Button title="set home position" onPress={saveHomePosition} />
+          <Button title="현 위치 업데이트" onPress={getPosition} />
+          {/* <Button title="set home position" onPress={saveHomePosition} /> */}
           {isLoading ? (
             <Text>loading...</Text>
           ) : (
             <View>
-              <Text>light: {props.data.light}</Text>
               <Text>accuracy: {accuracy}</Text>
-              <Text>latitude: {position?.latitude}</Text>
-              <Text>longitude: {position?.longitude}</Text>
-              <Text>home latitude: {homePosition?.latitude}</Text>
-              <Text>home longitude: {homePosition?.longitude}</Text>
-              <Text>distance: {(distance * 1000).toFixed(0)}m</Text>
+              {/* <Text>home latitude: {homePosition?.latitude}</Text> */}
+              {/* <Text>home longitude: {homePosition?.longitude}</Text> */}
+              {/* <Text>distance: {(distance * 1000).toFixed(0)}m</Text> */}
             </View>
           )}
-          {isActive ? (
-            <View>
-              <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
-              <Text>awakeCount: {awakeCount}</Text>
-              <Text>sleepCount: {sleepCount}</Text>
-            </View>
+          {isActiveTime ? (
+            isServiceActive ? (
+              <View>
+                <Text>predResult: {predResult ? 'awake' : 'sleep'}</Text>
+                <Text>awakeCount: {awakeCount}</Text>
+                <Text>sleepCount: {sleepCount}</Text>
+              </View>
+            ) : (
+              <Text>서비스가 시작되지 않았습니다.</Text>
+            )
           ) : (
             <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
           )}
@@ -345,11 +354,17 @@ export const Getdata = props => {
       )}
       {/* <Button title="showToast" onPress={showToast} />
       <Button title="Test push notification" onPress={onPushNotification} /> */}
-      <Button title="start service" onPress={onDisplayNotification} />
       <Button
-        title="stop service"
+        title="자세 분류 서비스 시작"
+        onPress={() => {
+          onDisplayNotification(setIsServiceActive);
+        }}
+      />
+      <Button
+        title="자세 분류 서비스 중지"
         onPress={() => {
           notifee.stopForegroundService();
+          setIsServiceActive(false);
         }}
       />
     </View>
