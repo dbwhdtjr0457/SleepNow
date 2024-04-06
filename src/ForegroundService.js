@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, Button, DeviceEventEmitter, Text} from 'react-native';
+import {View, Button, DeviceEventEmitter, Text, Alert} from 'react-native';
 import notifee from '@notifee/react-native';
 import {
   accelerometer,
@@ -205,11 +205,42 @@ export default function Foregroundservice(props) {
         }}
       />
       <Button
+        title="업로드된 데이터 초기화"
+        onPress={() => {
+          Alert.alert(
+            '경고',
+            '업로드된 데이터가 모두 삭제됩니다. 계속하시겠습니까?',
+            [
+              {
+                text: '취소',
+                onPress: () => {},
+                style: 'cancel',
+              },
+              {
+                text: '확인',
+                onPress: () => {
+                  firestore()
+                    .collection(auth().currentUser.email)
+                    .get()
+                    .then(querySnapshot => {
+                      querySnapshot.forEach(documentSnapshot => {
+                        documentSnapshot.ref.delete();
+                      });
+                    });
+                },
+              },
+            ],
+            {cancelable: false},
+          );
+        }}
+      />
+      <Button
         title="깨어있음/잠자기 전환"
         onPress={() => {
           setAwake(!awake);
         }}
       />
+
       <Text>데이터 업로드 중... {isDataOn ? '진행 중' : '중지됨'}</Text>
       <Text>나는 지금... {awake ? '깨어있어요!' : '잘 꺼에요!'}</Text>
     </View>
