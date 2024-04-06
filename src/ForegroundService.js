@@ -20,10 +20,9 @@ import useInterval from './useInterval';
 import {
   offForegroundServiceNotification,
   onForegroundServiceNotification,
-  onPushStatusNotification,
 } from './Notification';
 
-export default function Foregroundservice() {
+export default function Foregroundservice(props) {
   const [awake, setAwake] = React.useState(true);
   const [luxsubscription, setLuxsubscription] = React.useState(null);
   const [accSubscription, setAccSubscription] = React.useState(null);
@@ -156,6 +155,7 @@ export default function Foregroundservice() {
     // Display a notification
     await onForegroundServiceNotification('upload').then(() => {
       setIsDataOn(true);
+      props.setIsUpload(true);
     });
   }
 
@@ -179,6 +179,7 @@ export default function Foregroundservice() {
 
     await offForegroundServiceNotification('upload').then(() => {
       setIsDataOn(false);
+      props.setIsUpload(false);
     });
   }
 

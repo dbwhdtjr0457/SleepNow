@@ -29,6 +29,7 @@ import {PermissionsAndroid} from 'react-native';
 import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
 import {Getdata} from './Getdata';
+import StatusView from './StatusView';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 const COLOR_SCHEME = Appearance.getColorScheme();
@@ -59,6 +60,8 @@ export default function App() {
     timestamp: 0,
   });
   const [isDetail, setIsDetail] = React.useState(false);
+  const [isUpload, setIsUpload] = React.useState(false);
+  const [isService, setIsService] = React.useState(false);
 
   let allData = {
     light: light.toFixed(0),
@@ -148,7 +151,15 @@ export default function App() {
           />
           <ScrollView>
             <View style={styles.contentContainer}>
-              <Foregroundservice />
+              <StatusView
+                isUpload={isUpload}
+                isService={isService}
+                SCREEN_WIDTH={SCREEN_WIDTH}
+                BACKGROUNDCOLOR={BACKGROUND_COLOR}
+              />
+              {/* <Text>isUpload: {isUpload ? 'true' : 'false'}</Text>
+              <Text>isService: {isService ? 'true' : 'false'}</Text> */}
+              <Foregroundservice setIsUpload={setIsUpload} />
               <Button
                 onPress={() => {
                   setIsDetail(!isDetail);
@@ -177,6 +188,7 @@ export default function App() {
                 BACKGROUNDCOLOR={BACKGROUND_COLOR}
                 data={allData}
                 isDetail={isDetail}
+                setIsService={setIsService}
               />
               <Text>* 사용법 *</Text>
               <Text>1. "데이터 업로드 시작" 버튼 터치</Text>
@@ -185,7 +197,9 @@ export default function App() {
               </Text>
               <Text>(하루에서 이틀 정도 데이터를 모아주세요.)</Text>
               <Text>3. "데이터 업로드 중지" 버튼 터치로 업로드 중지</Text>
-              <Text>4. "데이터 가져오기" 버튼 터치로 데이터 가져오고 분석</Text>
+              <Text>
+                4. "데이터 분석 업데이트" 버튼 터치로 데이터 가져오고 분석
+              </Text>
               <Text>5. "자세 분류 서비스 시작" 버튼 터치로 서비스 시작</Text>
               <Text>* 주의사항 *</Text>
 

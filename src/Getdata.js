@@ -112,8 +112,8 @@ export const Getdata = props => {
   }, [dt]);
 
   useInterval(() => {
-    // 20시부터 4시까지만 작동함.
-    // if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
+    // 22시부터 4시까지만 작동함.
+    // if (new Date().getHours() >= 22 || new Date().getHours() < 4) {
     if (true) {
       setIsActiveTime(true);
       if (isServiceActive) {
@@ -235,6 +235,7 @@ export const Getdata = props => {
         onPress={() => {
           onForegroundServiceNotification('service');
           setIsServiceActive(true);
+          props.setIsService(true);
         }}
       />
       <Button
@@ -242,6 +243,7 @@ export const Getdata = props => {
         onPress={() => {
           offForegroundServiceNotification('service');
           setIsServiceActive(false);
+          props.setIsService(false);
           setAwakeCount(0);
           setSleepCount(0);
         }}
