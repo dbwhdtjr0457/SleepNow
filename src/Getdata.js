@@ -45,15 +45,17 @@ export const Getdata = props => {
   };
 
   useEffect(() => {
-    AsyncStorage.getItem('data_set')
-      .then(data => {
-        const data_set = JSON.parse(data);
-        setTraining_data(data_set.training_data);
-        setTest_data(data_set.test_data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    AsyncStorage.getItem('dt').then(data => {
+      if (data !== null) {
+        const dtJson = JSON.parse(data);
+        const newDt = new DecisionTree(dtJson);
+        setDt(newDt);
+      }
+    });
+
+    AsyncStorage.getItem('accuracy').then(data => {
+      setAccuracy(JSON.parse(data));
+    });
 
     getPosition();
 
@@ -80,13 +82,17 @@ export const Getdata = props => {
   }, []);
 
   useEffect(() => {
+    // dt 상태 업데이트 후 로직 처리
+    if (dt) {
+      console.log('Decision Tree loaded');
+      setIsLoading(false);
+    }
+  }, [dt]); // dt 상태를 의존성 배열에 추가
+
+  useEffect(() => {
     if (training_data.length > 0 && test_data.length > 0) {
       console.log('training data length:', training_data.length);
       console.log('test data length:', test_data.length);
-      AsyncStorage.setItem(
-        'data_set',
-        JSON.stringify({training_data: training_data, test_data: test_data}),
-      );
       const class_name = 'awake';
       const features = [
         'light',
@@ -102,45 +108,38 @@ export const Getdata = props => {
       const newAccuracy = newDt.evaluate(test_data);
       setDt(newDt);
       setAccuracy(newAccuracy);
+      const newDtJson = newDt.toJSON();
+      AsyncStorage.setItem('dt', JSON.stringify(newDtJson));
+      AsyncStorage.setItem('accuracy', JSON.stringify(newAccuracy));
     }
   }, [test_data]);
 
-  useEffect(() => {
-    if (dt) {
-      setIsLoading(false);
-    }
-  }, [dt]);
-
   useInterval(() => {
     // 22시부터 4시까지만 작동함.
-    // if (new Date().getHours() >= 22 || new Date().getHours() < 4) {
-    if (true) {
+    if (new Date().getHours() >= 22 || new Date().getHours() < 4) {
+      // if (true) {
       setIsActiveTime(true);
       if (isServiceActive) {
         if (dt) {
-          console.log(props.data);
           setPredResult(dt.predict(props.data));
           if (predResult === true) {
             setAwakeCount(awakeCount + 1);
-            if (awakeCount === 100) {
+            if (awakeCount === 60) {
               setAwakeCount(0);
               setSleepCount(0);
             }
           } else {
             setSleepCount(sleepCount + 1);
-            if (sleepCount === 100) {
+            if (sleepCount === 60) {
               setAwakeCount(0);
               setSleepCount(0);
               onPushAlarmNotification();
               showToast();
             }
           }
-          console.log(predResult);
-          console.log(awakeCount, sleepCount);
-          console.log(props.data.light);
+          console.log('awakeCount: ', awakeCount, ', sleepCount: ', sleepCount);
         }
       }
-    } else {
     }
   }, 1000);
 
@@ -157,38 +156,38 @@ export const Getdata = props => {
           const data = querySnapshot.docs.map(doc => {
             const convertedData = {
               awake: doc.data().awake,
-              //   light: Math.pow(Number(doc.data().light.toFixed(0)), 2),
-              //   accX: Number(doc.data().s_acc.x.toFixed(0)),
-              //   accY: Number(doc.data().s_acc.y.toFixed(0)),
-              //   accZ: Number(doc.data().s_acc.z.toFixed(0)),
-              //   gyroX: Number(doc.data().s_gyro.x.toFixed(0)),
-              //   gyroY: Number(doc.data().s_gyro.y.toFixed(0)),
-              //   gyroZ: Number(doc.data().s_gyro.z.toFixed(0)),
-              //   gyroMag: Number(
-              //     Math.sqrt(
-              //       Math.pow(doc.data().s_gyro.x * 100, 2) +
-              //         Math.pow(doc.data().s_gyro.y * 100, 2) +
-              //         Math.pow(doc.data().s_gyro.z * 100, 2),
-              //     ).toFixed(0),
-              //   ),
-              //   magX: Number(doc.data().s_mag.x.toFixed(0)),
-              //   magY: Number(doc.data().s_mag.y.toFixed(0)),
-              //   magZ: Number(doc.data().s_mag.z.toFixed(0)),
-              light: doc.data().light.toFixed(0),
-              accX: doc.data().s_acc.x.toFixed(0),
-              accY: doc.data().s_acc.y.toFixed(0),
-              accZ: doc.data().s_acc.z.toFixed(0),
-              gyroX: doc.data().s_gyro.x.toFixed(0),
-              gyroY: doc.data().s_gyro.y.toFixed(0),
-              gyroZ: doc.data().s_gyro.z.toFixed(0),
-              gyroMag: Math.sqrt(
-                Math.pow(doc.data().s_gyro.x * 100, 2) +
-                  Math.pow(doc.data().s_gyro.y * 100, 2) +
-                  Math.pow(doc.data().s_gyro.z * 100, 2),
-              ).toFixed(0),
-              magX: doc.data().s_mag.x.toFixed(0),
-              magY: doc.data().s_mag.y.toFixed(0),
-              magZ: doc.data().s_mag.z.toFixed(0),
+              light: Math.pow(Number(doc.data().light), 2).toFixed(0),
+              accX: Number(doc.data().s_acc.x.toFixed(0)),
+              accY: Number(doc.data().s_acc.y.toFixed(0)),
+              accZ: Number(doc.data().s_acc.z.toFixed(0)),
+              gyroX: Number(doc.data().s_gyro.x.toFixed(0)),
+              gyroY: Number(doc.data().s_gyro.y.toFixed(0)),
+              gyroZ: Number(doc.data().s_gyro.z.toFixed(0)),
+              gyroMag: Number(
+                Math.sqrt(
+                  Math.pow(doc.data().s_gyro.x * 100, 2) +
+                    Math.pow(doc.data().s_gyro.y * 100, 2) +
+                    Math.pow(doc.data().s_gyro.z * 100, 2),
+                ).toFixed(0),
+              ),
+              magX: Number(doc.data().s_mag.x.toFixed(0)),
+              magY: Number(doc.data().s_mag.y.toFixed(0)),
+              magZ: Number(doc.data().s_mag.z.toFixed(0)),
+              //   light: doc.data().light.toFixed(0),
+              //   accX: doc.data().s_acc.x.toFixed(0),
+              //   accY: doc.data().s_acc.y.toFixed(0),
+              //   accZ: doc.data().s_acc.z.toFixed(0),
+              //   gyroX: doc.data().s_gyro.x.toFixed(0),
+              //   gyroY: doc.data().s_gyro.y.toFixed(0),
+              //   gyroZ: doc.data().s_gyro.z.toFixed(0),
+              //   gyroMag: Math.sqrt(
+              //     Math.pow(doc.data().s_gyro.x * 100, 2) +
+              //       Math.pow(doc.data().s_gyro.y * 100, 2) +
+              //       Math.pow(doc.data().s_gyro.z * 100, 2),
+              //   ).toFixed(0),
+              //   magX: doc.data().s_mag.x.toFixed(0),
+              //   magY: doc.data().s_mag.y.toFixed(0),
+              //   magZ: doc.data().s_mag.z.toFixed(0),
             };
             return convertedData;
           });

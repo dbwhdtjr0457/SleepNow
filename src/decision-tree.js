@@ -230,12 +230,31 @@ module.exports = (function () {
     let setEntropy = entropy(_.map(data, target));
     let setSize = _.size(data);
 
-    let entropies = attrVals.map(function (n) {
-      let subset = data.filter(function (x) {
-        return x[feature] === n;
-      });
+    // 연속형 숫자 데이터 분석을 위해 분기점 찾기
+    let sortedAttrVals = attrVals.sort();
+    let midPoints = sortedAttrVals.slice(1).map(function (x, i) {
+      return (x + sortedAttrVals[i]) / 2;
+    });
 
-      return (subset.length / setSize) * entropy(_.map(subset, target));
+    // 분기점을 기준으로 엔트로피 계산
+    // let entropies = attrVals.map(function (n) {
+    //   let subset = data.filter(function (x) {
+    //     return x[feature] === n;
+    //   });
+
+    //   return (subset.length / setSize) * entropy(_.map(subset, target));
+    // });
+    let entropies = midPoints.map(function (n) {
+      let subset = data.filter(function (x) {
+        return x[feature] <= n;
+      });
+      let subset2 = data.filter(function (x) {
+        return x[feature] > n;
+      });
+      return (
+        (subset.length / setSize) * entropy(_.map(subset, target)) +
+        (subset2.length / setSize) * entropy(_.map(subset2, target))
+      );
     });
 
     let sumOfEntropies = entropies.reduce(function (a, b) {
