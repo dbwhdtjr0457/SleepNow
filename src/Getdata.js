@@ -93,6 +93,7 @@ export const Getdata = props => {
         'accX',
         'accY',
         'accZ',
+        'gyroMag',
         'magX',
         'magY',
         'magZ',
@@ -163,6 +164,11 @@ export const Getdata = props => {
               gyroX: doc.data().s_gyro.x.toFixed(0),
               gyroY: doc.data().s_gyro.y.toFixed(0),
               gyroZ: doc.data().s_gyro.z.toFixed(0),
+              gyroMag: Math.sqrt(
+                Math.pow(doc.data().s_gyro.x * 100, 2) +
+                  Math.pow(doc.data().s_gyro.y * 100, 2) +
+                  Math.pow(doc.data().s_gyro.z * 100, 2),
+              ).toFixed(0),
               magX: doc.data().s_mag.x.toFixed(0),
               magY: doc.data().s_mag.y.toFixed(0),
               magZ: doc.data().s_mag.z.toFixed(0),

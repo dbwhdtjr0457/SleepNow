@@ -71,6 +71,11 @@ export default function App() {
     gyroX: gyroData.x.toFixed(0),
     gyroY: gyroData.y.toFixed(0),
     gyroZ: gyroData.z.toFixed(0),
+    gyroMag: Math.sqrt(
+      Math.pow(gyroData.x * 100, 2) +
+        Math.pow(gyroData.y * 100, 2) +
+        Math.pow(gyroData.z * 100, 2),
+    ).toFixed(0),
     magX: magData.x.toFixed(0),
     magY: magData.y.toFixed(0),
     magZ: magData.z.toFixed(0),
