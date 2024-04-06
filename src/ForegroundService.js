@@ -17,6 +17,11 @@ import firestore from '@react-native-firebase/firestore';
 import {throttle} from 'lodash';
 
 import useInterval from './useInterval';
+import {
+  offForegroundServiceNotification,
+  onForegroundServiceNotification,
+  onPushStatusNotification,
+} from './Notification';
 
 export default function Foregroundservice() {
   const [awake, setAwake] = React.useState(true);
@@ -47,6 +52,7 @@ export default function Foregroundservice() {
   const [accArray, setAccArray] = React.useState([]);
   const [gyroArray, setGyroArray] = React.useState([]);
   const [magArray, setMagArray] = React.useState([]);
+  const [isDataOn, setIsDataOn] = React.useState(false);
 
   const addData = async data => {
     console.log(data);
@@ -61,6 +67,7 @@ export default function Foregroundservice() {
       console.log('Error adding document: ', e);
     }
   };
+
   const updateTotalInfo = (
     lightArray,
     accArray,
@@ -114,11 +121,6 @@ export default function Foregroundservice() {
     await notifee.requestPermission();
 
     // Create a channel (required for Android)
-    const channelId = await notifee.createChannel({
-      id: 'default',
-      name: 'Default Channel',
-    });
-
     startLightSensor();
     setUpdateIntervalForType(SensorTypes.accelerometer, 1000);
     setUpdateIntervalForType(SensorTypes.gyroscope, 1000);
@@ -152,20 +154,31 @@ export default function Foregroundservice() {
     );
 
     // Display a notification
-    await notifee.displayNotification({
-      title: '데이터 수집 중...',
-      body: 'sleepnow가 데이터를 수집하고 있습니다.',
-      android: {
-        ongoing: true,
-        channelId,
+    await onForegroundServiceNotification('upload').then(() => {
+      setIsDataOn(true);
+    });
+  }
 
-        asForegroundService: true,
-        // pressAction is needed if you want the notification to open the app when pressed
-        pressAction: {
-          id: 'default',
-          launchActivity: 'default',
-        },
-      },
+  async function offDisplayNotification() {
+    setAccSubscription(accSubscription => {
+      accSubscription?.unsubscribe();
+      return null;
+    });
+    setGyroSubscription(gyroSubscription => {
+      gyroSubscription?.unsubscribe();
+      return null;
+    });
+    setMagSubscription(magSubscription => {
+      magSubscription?.unsubscribe();
+      return null;
+    });
+    setLuxsubscription(luxsubscription => {
+      luxsubscription?.remove();
+      return null;
+    });
+
+    await offForegroundServiceNotification('upload').then(() => {
+      setIsDataOn(false);
     });
   }
 
@@ -180,35 +193,14 @@ export default function Foregroundservice() {
     <View>
       <Button
         title="데이터 업로드 시작"
-        onPress={() => onDisplayNotification()}
+        onPress={() => {
+          onDisplayNotification();
+        }}
       />
       <Button
         title="데이터 업로드 중지"
         onPress={() => {
-          setAccSubscription(accSubscription => {
-            accSubscription?.unsubscribe();
-            return null;
-          });
-          setGyroSubscription(gyroSubscription => {
-            gyroSubscription?.unsubscribe();
-            return null;
-          });
-          setMagSubscription(magSubscription => {
-            magSubscription?.unsubscribe();
-            return null;
-          });
-          setLuxsubscription(luxsubscription => {
-            luxsubscription?.remove();
-            return null;
-          });
-          notifee
-            .stopForegroundService()
-            .then(() => {
-              console.log('Foreground service stopped');
-            })
-            .catch(err => {
-              console.log('Foreground service failed to stop', err);
-            });
+          offDisplayNotification();
         }}
       />
       <Button
@@ -217,6 +209,7 @@ export default function Foregroundservice() {
           setAwake(!awake);
         }}
       />
+      <Text>데이터 업로드 중... {isDataOn ? '진행 중' : '중지됨'}</Text>
       <Text>나는 지금... {awake ? '깨어있어요!' : '잘 꺼에요!'}</Text>
     </View>
   );

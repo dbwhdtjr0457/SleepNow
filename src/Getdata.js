@@ -3,56 +3,14 @@ import {View, Button, Text, ToastAndroid} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import PushNotification, {Importance} from 'react-native-push-notification';
-import notifee from '@notifee/react-native';
 import Geolocation from 'react-native-geolocation-service';
-
 import useInterval from './useInterval';
+import {
+  onPushAlarmNotification,
+  onForegroundServiceNotification,
+  offForegroundServiceNotification,
+} from './Notification';
 const DecisionTree = require('decision-tree');
-
-async function onPushNotification() {
-  PushNotification.createChannel(
-    {
-      channelId: 'channel-id3', // (required)
-      channelName: 'My channel', // (required)
-      channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-      playSound: false, // (optional) default: true
-      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-      importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
-      vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-    },
-    created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-  );
-
-  await PushNotification.localNotification({
-    channelId: 'channel-id3',
-    message: '잘 때까지 알림을 보낼께요!',
-    vibrate: true,
-  });
-}
-
-async function onDisplayNotification(setIsServiceActive) {
-  await notifee.requestPermission();
-
-  const channelId = await notifee.createChannel({
-    id: 'channel-id2',
-    name: 'My Channel',
-  });
-
-  await notifee.displayNotification({
-    title: '센서 데이터로 자세 분석 중..',
-    android: {
-      channelId,
-      ongoing: true,
-      asForegroundService: true,
-      pressAction: {
-        id: 'default',
-        launchActivity: 'default',
-      },
-    },
-  });
-  setIsServiceActive(true);
-}
 
 export const Getdata = props => {
   const [training_data, setTraining_data] = useState([]);
@@ -65,19 +23,11 @@ export const Getdata = props => {
   const [sleepCount, setSleepCount] = useState(0);
   const [isActiveTime, setIsActiveTime] = useState(false);
   const [isServiceActive, setIsServiceActive] = useState(false);
-  // const [homePosition, setHomePosition] = useState({
-  //   latitude: 0,
-  //   longitude: 0,
-  // });
   const [position, setPosition] = useState({
-    // 37.4667, 127.1012
     latitude: 0,
     longitude: 0,
   });
   const [watchPositionId, setWatchPositionId] = useState(null);
-  // const [distance, setDistance] = useState(0);
-  // const [isFar, setIsFar] = useState(false);
-
   // getPosition
   const getPosition = () => {
     Geolocation.getCurrentPosition(
@@ -94,61 +44,6 @@ export const Getdata = props => {
     );
   };
 
-  // // save home position
-  // const saveHomePosition = () => {
-  //   Geolocation.getCurrentPosition(
-  //     positionData => {
-  //       AsyncStorage.setItem(
-  //         'home_position',
-  //         JSON.stringify({
-  //           latitude: positionData.coords.latitude,
-  //           longitude: positionData.coords.longitude,
-  //         }),
-  //       );
-  //       setHomePosition({
-  //         latitude: positionData.coords.latitude,
-  //         longitude: positionData.coords.longitude,
-  //       });
-  //     },
-  //     error => {
-  //       console.log(error.code, error.message);
-  //     },
-  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-  //   );
-  // };
-
-  // function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-  //   const R = 6371; // 지구의 반지름(km)
-  //   const dLat = deg2rad(lat2 - lat1); // deg2rad 아래에 정의
-  //   const dLon = deg2rad(lon2 - lon1);
-  //   const a =
-  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-  //     Math.cos(deg2rad(lat1)) *
-  //       Math.cos(deg2rad(lat2)) *
-  //       Math.sin(dLon / 2) *
-  //       Math.sin(dLon / 2);
-  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  //   const d = R * c; // 거리(km)
-  //   return d;
-  // }
-
-  // function deg2rad(deg) {
-  //   return deg * (Math.PI / 180);
-  // }
-
-  // useEffect(() => {
-  //   const distanceData = getDistanceFromLatLonInKm(
-  //     position.latitude,
-  //     position.longitude,
-  //     homePosition.latitude,
-  //     homePosition.longitude,
-  //   );
-  //   // get distance between two points
-  //   if (position.latitude !== 0 && position.longitude !== 0) {
-  //     setDistance(distanceData);
-  //   }
-  // }, [position, homePosition]);
-
   useEffect(() => {
     AsyncStorage.getItem('data_set')
       .then(data => {
@@ -159,21 +54,6 @@ export const Getdata = props => {
       .catch(error => {
         console.log(error);
       });
-
-    // AsyncStorage.getItem('home_position')
-    //   .then(data => {
-    //     const home_position = JSON.parse(data);
-    //     console.log(
-    //       'home position: ' +
-    //         home_position.latitude +
-    //         ' ' +
-    //         home_position.longitude,
-    //     );
-    //     setHomePosition(home_position);
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
 
     getPosition();
 
@@ -233,24 +113,24 @@ export const Getdata = props => {
 
   useInterval(() => {
     // 20시부터 4시까지만 작동함.
-    if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
-      // if (true) {
+    // if (new Date().getHours() >= 20 || new Date().getHours() < 4) {
+    if (true) {
       setIsActiveTime(true);
       if (isServiceActive) {
         if (dt) {
           setPredResult(dt.predict(props.data));
           if (predResult === true) {
             setAwakeCount(awakeCount + 1);
-            if (awakeCount === 15) {
+            if (awakeCount === 100) {
               setAwakeCount(0);
               setSleepCount(0);
             }
           } else {
             setSleepCount(sleepCount + 1);
-            if (sleepCount === 15) {
+            if (sleepCount === 100) {
               setAwakeCount(0);
               setSleepCount(0);
-              onPushNotification();
+              onPushAlarmNotification();
               showToast();
             }
           }
@@ -315,26 +195,24 @@ export const Getdata = props => {
         <Text>no user logged in, please log in and reload the app.</Text>
       ) : (
         <View>
-          <Text>latitude: {position?.latitude}</Text>
-          <Text>longitude: {position?.longitude}</Text>
+          {props.isDetail && (
+            <>
+              <Text>latitude: {position?.latitude}</Text>
+              <Text>longitude: {position?.longitude}</Text>
+            </>
+          )}
           <Button
-            title="데이터 가져오기"
+            title="데이터 분석 업데이트"
             onPress={() => {
               setIsLoading(true);
               getData();
             }}
           />
-
-          <Button title="현 위치 업데이트" onPress={getPosition} />
-          {/* <Button title="set home position" onPress={saveHomePosition} /> */}
           {isLoading ? (
             <Text>loading...</Text>
           ) : (
             <View>
-              <Text>accuracy: {accuracy}</Text>
-              {/* <Text>home latitude: {homePosition?.latitude}</Text> */}
-              {/* <Text>home longitude: {homePosition?.longitude}</Text> */}
-              {/* <Text>distance: {(distance * 1000).toFixed(0)}m</Text> */}
+              <Text>정확도: {(accuracy * 100).toFixed(2)}%</Text>
             </View>
           )}
           {isActiveTime ? (
@@ -352,19 +230,20 @@ export const Getdata = props => {
           )}
         </View>
       )}
-      {/* <Button title="showToast" onPress={showToast} />
-      <Button title="Test push notification" onPress={onPushNotification} /> */}
       <Button
         title="자세 분류 서비스 시작"
         onPress={() => {
-          onDisplayNotification(setIsServiceActive);
+          onForegroundServiceNotification('service');
+          setIsServiceActive(true);
         }}
       />
       <Button
         title="자세 분류 서비스 중지"
         onPress={() => {
-          notifee.stopForegroundService();
+          offForegroundServiceNotification('service');
           setIsServiceActive(false);
+          setAwakeCount(0);
+          setSleepCount(0);
         }}
       />
     </View>

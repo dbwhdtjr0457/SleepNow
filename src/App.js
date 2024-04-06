@@ -8,6 +8,7 @@ import {
   Dimensions,
   Appearance,
   Alert,
+  Button,
 } from 'react-native';
 import {
   accelerometer,
@@ -57,6 +58,7 @@ export default function App() {
     z: 0,
     timestamp: 0,
   });
+  const [isDetail, setIsDetail] = React.useState(false);
 
   let allData = {
     light: light.toFixed(0),
@@ -147,23 +149,34 @@ export default function App() {
           <ScrollView>
             <View style={styles.contentContainer}>
               <Foregroundservice />
-              <Text>Accelerometer:</Text>
-              <Text>x: {accData.x}</Text>
-              <Text>y: {accData.y}</Text>
-              <Text>z: {accData.z}</Text>
-              <Text>Gyroscope:</Text>
-              <Text>x: {gyroData.x}</Text>
-              <Text>y: {gyroData.y}</Text>
-              <Text>z: {gyroData.z}</Text>
-              <Text>Magnetometer:</Text>
-              <Text>x: {magData.x}</Text>
-              <Text>y: {magData.y}</Text>
-              <Text>z: {magData.z}</Text>
-              <Text>light: {light}</Text>
+              <Button
+                onPress={() => {
+                  setIsDetail(!isDetail);
+                }}
+                title="센서 데이터 보기"
+              />
+              {isDetail && (
+                <>
+                  <Text>Accelerometer:</Text>
+                  <Text>x: {accData.x}</Text>
+                  <Text>y: {accData.y}</Text>
+                  <Text>z: {accData.z}</Text>
+                  <Text>Gyroscope:</Text>
+                  <Text>x: {gyroData.x}</Text>
+                  <Text>y: {gyroData.y}</Text>
+                  <Text>z: {gyroData.z}</Text>
+                  <Text>Magnetometer:</Text>
+                  <Text>x: {magData.x}</Text>
+                  <Text>y: {magData.y}</Text>
+                  <Text>z: {magData.z}</Text>
+                  <Text>light: {light}</Text>
+                </>
+              )}
               <Getdata
                 SCREEN_WIDTH={SCREEN_WIDTH}
                 BACKGROUNDCOLOR={BACKGROUND_COLOR}
                 data={allData}
+                isDetail={isDetail}
               />
               <Text>* 사용법 *</Text>
               <Text>1. "데이터 업로드 시작" 버튼 터치</Text>
@@ -181,15 +194,7 @@ export default function App() {
                 2. 알람, GPS, 센서 사용 권한을 허용해야 정상 작동합니다.
               </Text>
               <Text>
-                3. 데이터 업로드와 자세 분류 서비스는 동시에 작동하지 않습니다.
-                데이터 업로드 중지 후 서비스 시작을 터치해주세요.
-              </Text>
-              <Text>
-                4. 데이터 업로드, 자세 분류 서비스 작동 시 알림바에
-                notification이 출력되는지 확인해주세요.
-              </Text>
-              <Text>
-                5. 앱을 완전히 종료하면 데이터 업로드, 자세 분류 서비스가
+                3. 앱을 완전히 종료하면 데이터 업로드, 자세 분류 서비스가
                 중지됩니다. 홈 버튼을 눌러 백그라운드로 전환해주세요.
               </Text>
             </View>
