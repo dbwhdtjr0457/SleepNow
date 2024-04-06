@@ -64,6 +64,23 @@ export default function App() {
   const [isService, setIsService] = React.useState(false);
 
   let allData = {
+    // light: Math.pow(Number(light.toFixed(0)), 2),
+    // accX: Number(accData.x.toFixed(0)),
+    // accY: Number(accData.y.toFixed(0)),
+    // accZ: Number(accData.z.toFixed(0)),
+    // gyroX: Number(gyroData.x.toFixed(0)),
+    // gyroY: Number(gyroData.y.toFixed(0)),
+    // gyroZ: Number(gyroData.z.toFixed(0)),
+    // gyroMag: Number(
+    //   Math.sqrt(
+    //     Math.pow(gyroData.x * 100, 2) +
+    //       Math.pow(gyroData.y * 100, 2) +
+    //       Math.pow(gyroData.z * 100, 2),
+    //   ).toFixed(0),
+    // ),
+    // magX: Number(magData.x.toFixed(0)),
+    // magY: Number(magData.y.toFixed(0)),
+    // magZ: Number(magData.z.toFixed(0)),
     light: light.toFixed(0),
     accX: accData.x.toFixed(0),
     accY: accData.y.toFixed(0),

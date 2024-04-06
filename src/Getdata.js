@@ -10,7 +10,7 @@ import {
   onForegroundServiceNotification,
   offForegroundServiceNotification,
 } from './Notification';
-const DecisionTree = require('decision-tree');
+const DecisionTree = require('./decision-tree');
 
 export const Getdata = props => {
   const [training_data, setTraining_data] = useState([]);
@@ -99,7 +99,6 @@ export const Getdata = props => {
         'magZ',
       ];
       const newDt = new DecisionTree(training_data, class_name, features);
-      newDt.train(training_data);
       const newAccuracy = newDt.evaluate(test_data);
       setDt(newDt);
       setAccuracy(newAccuracy);
@@ -119,6 +118,7 @@ export const Getdata = props => {
       setIsActiveTime(true);
       if (isServiceActive) {
         if (dt) {
+          console.log(props.data);
           setPredResult(dt.predict(props.data));
           if (predResult === true) {
             setAwakeCount(awakeCount + 1);
@@ -157,6 +157,23 @@ export const Getdata = props => {
           const data = querySnapshot.docs.map(doc => {
             const convertedData = {
               awake: doc.data().awake,
+              //   light: Math.pow(Number(doc.data().light.toFixed(0)), 2),
+              //   accX: Number(doc.data().s_acc.x.toFixed(0)),
+              //   accY: Number(doc.data().s_acc.y.toFixed(0)),
+              //   accZ: Number(doc.data().s_acc.z.toFixed(0)),
+              //   gyroX: Number(doc.data().s_gyro.x.toFixed(0)),
+              //   gyroY: Number(doc.data().s_gyro.y.toFixed(0)),
+              //   gyroZ: Number(doc.data().s_gyro.z.toFixed(0)),
+              //   gyroMag: Number(
+              //     Math.sqrt(
+              //       Math.pow(doc.data().s_gyro.x * 100, 2) +
+              //         Math.pow(doc.data().s_gyro.y * 100, 2) +
+              //         Math.pow(doc.data().s_gyro.z * 100, 2),
+              //     ).toFixed(0),
+              //   ),
+              //   magX: Number(doc.data().s_mag.x.toFixed(0)),
+              //   magY: Number(doc.data().s_mag.y.toFixed(0)),
+              //   magZ: Number(doc.data().s_mag.z.toFixed(0)),
               light: doc.data().light.toFixed(0),
               accX: doc.data().s_acc.x.toFixed(0),
               accY: doc.data().s_acc.y.toFixed(0),
@@ -180,6 +197,10 @@ export const Getdata = props => {
         .then(data => {
           setTraining_data(data.slice(0, Math.floor(data.length * 0.8)));
           setTest_data(data.slice(Math.floor(data.length * 0.8), data.length));
+          return data;
+        })
+        .then(data => {
+          console.log('fetchedData: ', data[0]);
         })
         .catch(error => {
           console.log(error);
