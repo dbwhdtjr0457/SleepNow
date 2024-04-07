@@ -130,7 +130,9 @@ export default function App() {
     PermissionsAndroid.requestMultiple([
       PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    ]);
+    ]).then(() => {
+      optimizationCheck();
+    });
     startLightSensor();
     const subscription = DeviceEventEmitter.addListener(
       'LightSensor',
@@ -138,7 +140,6 @@ export default function App() {
         setLight(data.lightValue);
       }, 1000),
     );
-    // setLight(100);
     const accSubscription = accelerometer.subscribe(({x, y, z, timestamp}) => {
       setAccData({x, y, z, timestamp});
     });
@@ -157,6 +158,7 @@ export default function App() {
       magSubscription.unsubscribe();
       stopLightSensor();
       subscription?.remove();
+      notifee.stopForegroundService();
     };
   }, []);
 

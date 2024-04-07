@@ -18,7 +18,7 @@ export const Getdata = props => {
   const [dt, setDt] = useState(null);
   const [accuracy, setAccuracy] = useState(null);
   const [predResult, setPredResult] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [awakeCount, setAwakeCount] = useState(0);
   const [sleepCount, setSleepCount] = useState(0);
   const [isActiveTime, setIsActiveTime] = useState(false);
@@ -27,6 +27,7 @@ export const Getdata = props => {
     latitude: 0,
     longitude: 0,
   });
+  const [dataLength, setDataLength] = useState(0);
   const [watchPositionId, setWatchPositionId] = useState(null);
   // getPosition
   const getPosition = () => {
@@ -53,9 +54,21 @@ export const Getdata = props => {
       }
     });
 
-    AsyncStorage.getItem('accuracy').then(data => {
-      setAccuracy(JSON.parse(data));
-    });
+    AsyncStorage.getItem('accuracy')
+      .then(data => {
+        setAccuracy(JSON.parse(data));
+      })
+      .catch(error => {
+        console.log(error);
+      });
+
+    AsyncStorage.getItem('dataLength')
+      .then(data => {
+        setDataLength(data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
 
     getPosition();
 
@@ -140,6 +153,7 @@ export const Getdata = props => {
           console.log('awakeCount: ', awakeCount, ', sleepCount: ', sleepCount);
         }
       }
+    } else {
     }
   }, 1000);
 
@@ -150,10 +164,18 @@ export const Getdata = props => {
     } else {
       firestore()
         .collection(auth().currentUser.email)
+        .orderBy('time', 'desc')
+        .limit(3000)
         .get()
         .then(querySnapshot => {
           console.log(querySnapshot.docs.length);
+          AsyncStorage.setItem(
+            'dataLength',
+            querySnapshot.docs.length.toString(),
+          );
+          setDataLength(querySnapshot.docs.length);
           const data = querySnapshot.docs.map(doc => {
+            console.log(doc.data().time);
             const convertedData = {
               awake: doc.data().awake,
               light: Math.pow(Number(doc.data().light), 2).toFixed(0),
@@ -194,12 +216,9 @@ export const Getdata = props => {
           return data;
         })
         .then(data => {
-          setTraining_data(data.slice(0, Math.floor(data.length * 0.8)));
-          setTest_data(data.slice(Math.floor(data.length * 0.8), data.length));
+          setTraining_data(data.filter((_, index) => index % 2 === 0));
+          setTest_data(data.filter((_, index) => index % 2 !== 0));
           return data;
-        })
-        .then(data => {
-          console.log('fetchedData: ', data[0]);
         })
         .catch(error => {
           console.log(error);
@@ -236,10 +255,18 @@ export const Getdata = props => {
           />
           {isLoading ? (
             <Text>loading...</Text>
-          ) : (
+          ) : dt !== null && accuracy !== null ? (
             <View>
+              <Text>분석 데이터 개수: {dataLength} (최대 3000개)</Text>
               <Text>정확도: {(accuracy * 100).toFixed(2)}%</Text>
             </View>
+          ) : (
+            <>
+              <Text>분석 데이터가 없습니다. </Text>
+              <Text>
+                데이터 수집 후 데이터 분석 업데이트 버튼을 눌러주세요.
+              </Text>
+            </>
           )}
           {isActiveTime ? (
             isServiceActive ? (
@@ -252,7 +279,7 @@ export const Getdata = props => {
               <Text>서비스가 시작되지 않았습니다.</Text>
             )
           ) : (
-            <Text>오후 8시부터 새벽 4시 사이에만 작동합니다!</Text>
+            <Text>오후 10시부터 새벽 4시 사이에만 작동합니다!</Text>
           )}
         </View>
       )}
