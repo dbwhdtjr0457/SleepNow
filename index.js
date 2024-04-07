@@ -12,6 +12,10 @@ notifee.registerForegroundService(notification => {
   return new Promise(() => {});
 });
 
+notifee.onBackgroundEvent(async ({type, detail}) => {
+  console.log('Background Event:', type, detail);
+});
+
 // Must be outside of any component LifeCycle (such as `componentDidMount`).
 PushNotification.configure({
   // (optional) Called when Token is generated (iOS and Android)

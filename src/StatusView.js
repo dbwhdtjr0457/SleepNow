@@ -1,18 +1,34 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import useInterval from './useInterval';
 
 export default function StatusView(props) {
+  // isUpload, isService가 true인 경우 시간을 증가
+  const [uploadTime, setUploadTime] = React.useState(0);
+  const [serviceTime, setServiceTime] = React.useState(0);
+
+  useInterval(() => {
+    if (props.isUpload) {
+      setUploadTime(uploadTime + 1);
+    } else {
+      setUploadTime(0);
+    }
+    if (props.isService) {
+      setServiceTime(serviceTime + 1);
+    } else {
+      setServiceTime(0);
+    }
+  }, 1000);
+
   return (
     <View style={styles(props).container}>
-      {/* 영역을 두 부분으로 나눔 */}
-      {/* isUpload 영역이 왼쪽 절반, isDetail 영역이 오른쪽 절반을 차지함 */}
-      {/* isUpload가 true일 경우 isUpload 영역 색깔 초록색, false일 경우 회색 */}
-      {/* isDetail이 true일 경우 isDetail 영역 색깔 파란색, false일 경우 회색 */}
       <View style={styles(props).uploadArea}>
         <Text>데이터 업로드: {props.isUpload ? '작동 중' : '중지됨'}</Text>
+        <Text>작동 시간: {uploadTime}초</Text>
       </View>
       <View style={styles(props).detailArea}>
         <Text>자세 분류 서비스: {props.isService ? '작동 중' : '중지됨'}</Text>
+        <Text>작동 시간: {serviceTime}초</Text>
       </View>
     </View>
   );
