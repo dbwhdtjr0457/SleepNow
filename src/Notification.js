@@ -109,12 +109,12 @@ export async function onForegroundServiceNotification(mode) {
   });
 }
 
-export async function offForegroundServiceNotification(mode) {
+export async function offForegroundServiceNotification(mode, status) {
   if (mode === 'upload') {
     if (uploadStatus) {
       uploadStatus = false;
       onPushStatusNotification('dataOff');
-    } else {
+    } else if (status !== 'appclose') {
       ToastAndroid.showWithGravity(
         '데이터 업로드가 이미 중지되었습니다.',
         ToastAndroid.SHORT,
@@ -126,7 +126,7 @@ export async function offForegroundServiceNotification(mode) {
     if (serviceStatus) {
       serviceStatus = false;
       onPushStatusNotification('serviceOff');
-    } else {
+    } else if (status !== 'appclose') {
       ToastAndroid.showWithGravity(
         '자세 감지 서비스가 이미 중지되었습니다.',
         ToastAndroid.SHORT,

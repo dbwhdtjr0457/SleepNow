@@ -51,7 +51,8 @@ export default function Foregroundservice(props) {
   const [accArray, setAccArray] = React.useState([]);
   const [gyroArray, setGyroArray] = React.useState([]);
   const [magArray, setMagArray] = React.useState([]);
-  const [isDataOn, setIsDataOn] = React.useState(false);
+  const [isUploadOn, setIsUploadOn] = React.useState(false);
+  const [uploadToggle, setUploadToggle] = React.useState(true);
 
   const addData = async data => {
     console.log(data);
@@ -104,9 +105,14 @@ export default function Foregroundservice(props) {
       setAccArray([...accArray, accData]);
       setGyroArray([...gyroArray, gyroData]);
       setMagArray([...magArray, magData]);
-      console.log(accArray.length);
+      console.log(accArray.length, uploadToggle);
       if (accArray.length === 10) {
-        updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
+        if (uploadToggle) {
+          setUploadToggle(false);
+          updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
+        } else {
+          setUploadToggle(true);
+        }
         setLightArray([]);
         setAccArray([]);
         setGyroArray([]);
@@ -154,7 +160,7 @@ export default function Foregroundservice(props) {
 
     // Display a notification
     await onForegroundServiceNotification('upload').then(() => {
-      setIsDataOn(true);
+      setIsUploadOn(true);
       props.setIsUpload(true);
     });
   }
@@ -177,11 +183,17 @@ export default function Foregroundservice(props) {
       return null;
     });
 
-    await offForegroundServiceNotification('upload').then(() => {
-      setIsDataOn(false);
+    await offForegroundServiceNotification('upload', 'appclose').then(() => {
+      setIsUploadOn(false);
       props.setIsUpload(false);
     });
   }
+
+  useEffect(() => {
+    return () => {
+      offDisplayNotification();
+    };
+  }, []);
 
   useEffect(() => {
     setLightArray([]);
@@ -241,7 +253,7 @@ export default function Foregroundservice(props) {
         }}
       />
 
-      <Text>데이터 업로드 중... {isDataOn ? '진행 중' : '중지됨'}</Text>
+      <Text>데이터 업로드 중... {isUploadOn ? '진행 중' : '중지됨'}</Text>
       <Text>나는 지금... {awake ? '깨어있어요!' : '잘 꺼에요!'}</Text>
     </View>
   );

@@ -91,6 +91,11 @@ export const Getdata = props => {
         console.log('clear watch position');
         Geolocation.clearWatch(watchPositionId);
       }
+      offForegroundServiceNotification('service', 'appclose');
+      setIsServiceActive(false);
+      props.setIsService(false);
+      setAwakeCount(0);
+      setSleepCount(0);
     };
   }, []);
 
