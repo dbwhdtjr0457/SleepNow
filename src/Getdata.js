@@ -145,6 +145,7 @@ export const Getdata = props => {
             if (awakeCount === 60) {
               setAwakeCount(0);
               setSleepCount(0);
+              props.setServiceCount(props.serviceCount + 1);
             }
           } else {
             setSleepCount(sleepCount + 1);
@@ -153,12 +154,18 @@ export const Getdata = props => {
               setSleepCount(0);
               onPushAlarmNotification();
               showToast();
+              props.setServiceCount(props.serviceCount + 1);
             }
           }
           console.log('awakeCount: ', awakeCount, ', sleepCount: ', sleepCount);
         }
+      } else {
+        setAwakeCount(0);
+        setSleepCount(0);
+        props.setServiceCount(0);
       }
     } else {
+      setIsActiveTime(false);
     }
   }, 1000);
 
@@ -172,6 +179,21 @@ export const Getdata = props => {
         .orderBy('time', 'desc')
         .limit(3000)
         .get()
+        // .then(querySnapshot => {
+        //   return querySnapshot.docs.map(doc => {
+        //     let convertedData = doc.data();
+        //     if (
+        //       doc.data().awake === 'sleep' &&
+        //       doc.data().s_acc.x >= -1 &&
+        //       doc.data().s_acc.x <= 1 &&
+        //       doc.data().s_acc.y >= -1 &&
+        //       doc.data().s_acc.y <= 1
+        //     ) {
+        //       convertedData.awake = 'awake';
+        //     }
+        //     return convertedData;
+        //   });
+        // })
         .then(querySnapshot => {
           console.log(querySnapshot.docs.length);
           AsyncStorage.setItem(
@@ -180,10 +202,9 @@ export const Getdata = props => {
           );
           setDataLength(querySnapshot.docs.length);
           const data = querySnapshot.docs.map(doc => {
-            console.log(doc.data().time);
-            const convertedData = {
+            let convertedData = {
               awake: doc.data().awake,
-              light: Math.pow(Number(doc.data().light), 2).toFixed(0),
+              light: Number(doc.data().light.toFixed(0)),
               accX: Number(doc.data().s_acc.x.toFixed(0)),
               accY: Number(doc.data().s_acc.y.toFixed(0)),
               accZ: Number(doc.data().s_acc.z.toFixed(0)),
@@ -216,6 +237,15 @@ export const Getdata = props => {
               //   magY: doc.data().s_mag.y.toFixed(0),
               //   magZ: doc.data().s_mag.z.toFixed(0),
             };
+            if (
+              convertedData.awake === false &&
+              convertedData.accX >= -1 &&
+              convertedData.accX <= 1 &&
+              convertedData.accY >= -1 &&
+              convertedData.accY <= 1
+            ) {
+              convertedData.awake = true;
+            }
             return convertedData;
           });
           return data;

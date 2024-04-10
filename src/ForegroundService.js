@@ -21,6 +21,7 @@ import {
   offForegroundServiceNotification,
   onForegroundServiceNotification,
 } from './Notification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Foregroundservice(props) {
   const [awake, setAwake] = React.useState(true);
@@ -53,6 +54,7 @@ export default function Foregroundservice(props) {
   const [magArray, setMagArray] = React.useState([]);
   const [isUploadOn, setIsUploadOn] = React.useState(false);
   const [uploadToggle, setUploadToggle] = React.useState(true);
+  const [uploadCycle, setUploadCycle] = React.useState(0);
 
   const addData = async data => {
     console.log(data);
@@ -106,18 +108,22 @@ export default function Foregroundservice(props) {
       setGyroArray([...gyroArray, gyroData]);
       setMagArray([...magArray, magData]);
       console.log(accArray.length, uploadToggle);
-      if (accArray.length === 10) {
+      if (accArray.length === 9) {
         if (uploadToggle) {
           setUploadToggle(false);
           updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
-        } else {
+          props.setUploadCount(props.uploadCount + 1);
+        } else if (uploadCycle === 2) {
           setUploadToggle(true);
         }
         setLightArray([]);
         setAccArray([]);
         setGyroArray([]);
         setMagArray([]);
+        setUploadCycle((uploadCycle + 1) % 3);
       }
+    } else {
+      props.setUploadCount(0);
     }
   }, 1000);
 
@@ -239,6 +245,8 @@ export default function Foregroundservice(props) {
                         documentSnapshot.ref.delete();
                       });
                     });
+                  props.setUploadCount(0);
+                  AsyncStorage.setItem('uploadCount', '0');
                 },
               },
             ],

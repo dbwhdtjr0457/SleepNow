@@ -25,10 +25,12 @@ export default function StatusView(props) {
       <View style={styles(props).uploadArea}>
         <Text>데이터 업로드: {props.isUpload ? '작동 중' : '중지됨'}</Text>
         <Text>작동 시간: {uploadTime}초</Text>
+        <Text>업로드 횟수: {props.uploadCount}</Text>
       </View>
       <View style={styles(props).detailArea}>
         <Text>자세 분류 서비스: {props.isService ? '작동 중' : '중지됨'}</Text>
         <Text>작동 시간: {serviceTime}초</Text>
+        <Text>서비스 횟수: {props.serviceCount}</Text>
       </View>
     </View>
   );

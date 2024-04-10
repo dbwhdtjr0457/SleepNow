@@ -30,6 +30,7 @@ import Foregroundservice from './ForegroundService';
 import {LoginPage} from './LoginPage';
 import {Getdata} from './Getdata';
 import StatusView from './StatusView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 const COLOR_SCHEME = Appearance.getColorScheme();
@@ -62,9 +63,11 @@ export default function App() {
   const [isDetail, setIsDetail] = React.useState(false);
   const [isUpload, setIsUpload] = React.useState(false);
   const [isService, setIsService] = React.useState(false);
+  const [uploadCount, setUploadCount] = React.useState(0);
+  const [serviceCount, setServiceCount] = React.useState(0);
 
   let allData = {
-    light: Math.pow(Number(light), 2).toFixed(0),
+    light: Number(light.toFixed(0)),
     accX: Number(accData.x.toFixed(0)),
     accY: Number(accData.y.toFixed(0)),
     accZ: Number(accData.z.toFixed(0)),
@@ -178,12 +181,18 @@ export default function App() {
               <StatusView
                 isUpload={isUpload}
                 isService={isService}
+                uploadCount={uploadCount}
+                serviceCount={serviceCount}
                 SCREEN_WIDTH={SCREEN_WIDTH}
                 BACKGROUNDCOLOR={BACKGROUND_COLOR}
               />
               {/* <Text>isUpload: {isUpload ? 'true' : 'false'}</Text>
               <Text>isService: {isService ? 'true' : 'false'}</Text> */}
-              <Foregroundservice setIsUpload={setIsUpload} />
+              <Foregroundservice
+                setIsUpload={setIsUpload}
+                uploadCount={uploadCount}
+                setUploadCount={setUploadCount}
+              />
               <Button
                 onPress={() => {
                   setIsDetail(!isDetail);
@@ -213,6 +222,9 @@ export default function App() {
                 data={allData}
                 isDetail={isDetail}
                 setIsService={setIsService}
+                setUploadCount={setUploadCount}
+                serviceCount={serviceCount}
+                setServiceCount={setServiceCount}
               />
               <Text>* 사용법 *</Text>
               <Text>1. "데이터 업로드 시작" 버튼 터치</Text>
