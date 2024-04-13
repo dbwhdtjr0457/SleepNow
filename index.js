@@ -3,13 +3,17 @@
  */
 
 import {AppRegistry} from 'react-native';
-import App from './App';
+import App from './src/App';
 import {name as appName} from './app.json';
 import PushNotification from 'react-native-push-notification';
 import notifee from '@notifee/react-native';
 
 notifee.registerForegroundService(notification => {
   return new Promise(() => {});
+});
+
+notifee.onBackgroundEvent(async ({type, detail}) => {
+  console.log('Background Event:', type, detail);
 });
 
 // Must be outside of any component LifeCycle (such as `componentDidMount`).

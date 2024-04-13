@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, Button, DeviceEventEmitter, Text} from 'react-native';
+import {View, Button, DeviceEventEmitter, Text, Alert} from 'react-native';
 import notifee from '@notifee/react-native';
 import {
   accelerometer,
@@ -17,8 +17,13 @@ import firestore from '@react-native-firebase/firestore';
 import {throttle} from 'lodash';
 
 import useInterval from './useInterval';
+import {
+  offForegroundServiceNotification,
+  onForegroundServiceNotification,
+} from './Notification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Foregroundservice() {
+export default function Foregroundservice(props) {
   const [awake, setAwake] = React.useState(true);
   const [luxsubscription, setLuxsubscription] = React.useState(null);
   const [accSubscription, setAccSubscription] = React.useState(null);
@@ -47,6 +52,9 @@ export default function Foregroundservice() {
   const [accArray, setAccArray] = React.useState([]);
   const [gyroArray, setGyroArray] = React.useState([]);
   const [magArray, setMagArray] = React.useState([]);
+  const [isUploadOn, setIsUploadOn] = React.useState(false);
+  const [uploadToggle, setUploadToggle] = React.useState(true);
+  const [uploadCycle, setUploadCycle] = React.useState(0);
 
   const addData = async data => {
     console.log(data);
@@ -61,6 +69,7 @@ export default function Foregroundservice() {
       console.log('Error adding document: ', e);
     }
   };
+
   const updateTotalInfo = (
     lightArray,
     accArray,
@@ -98,14 +107,23 @@ export default function Foregroundservice() {
       setAccArray([...accArray, accData]);
       setGyroArray([...gyroArray, gyroData]);
       setMagArray([...magArray, magData]);
-      console.log(accArray.length);
-      if (accArray.length === 10) {
-        updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
+      console.log(accArray.length, uploadToggle);
+      if (accArray.length === 9) {
+        if (uploadToggle) {
+          setUploadToggle(false);
+          updateTotalInfo(lightArray, accArray, gyroArray, magArray, awake);
+          props.setUploadCount(props.uploadCount + 1);
+        } else if (uploadCycle === 2) {
+          setUploadToggle(true);
+        }
         setLightArray([]);
         setAccArray([]);
         setGyroArray([]);
         setMagArray([]);
+        setUploadCycle((uploadCycle + 1) % 3);
       }
+    } else {
+      props.setUploadCount(0);
     }
   }, 1000);
 
@@ -114,11 +132,6 @@ export default function Foregroundservice() {
     await notifee.requestPermission();
 
     // Create a channel (required for Android)
-    const channelId = await notifee.createChannel({
-      id: 'default',
-      name: 'Default Channel',
-    });
-
     startLightSensor();
     setUpdateIntervalForType(SensorTypes.accelerometer, 1000);
     setUpdateIntervalForType(SensorTypes.gyroscope, 1000);
@@ -152,25 +165,41 @@ export default function Foregroundservice() {
     );
 
     // Display a notification
-    await notifee.displayNotification({
-      title: '데이터 수집 중...',
-      body: 'sleepnow가 데이터를 수집하고 있습니다.',
-      android: {
-        ongoing: true,
-        channelId,
-        // pressAction is needed if you want the notification to open the app when pressed
-        asForegroundService: true,
-        actions: [
-          {
-            title: 'Stop',
-            pressAction: {
-              id: 'stop',
-            },
-          },
-        ],
-      },
+    await onForegroundServiceNotification('upload').then(() => {
+      setIsUploadOn(true);
+      props.setIsUpload(true);
     });
   }
+
+  async function offDisplayNotification() {
+    setAccSubscription(accSubscription => {
+      accSubscription?.unsubscribe();
+      return null;
+    });
+    setGyroSubscription(gyroSubscription => {
+      gyroSubscription?.unsubscribe();
+      return null;
+    });
+    setMagSubscription(magSubscription => {
+      magSubscription?.unsubscribe();
+      return null;
+    });
+    setLuxsubscription(luxsubscription => {
+      luxsubscription?.remove();
+      return null;
+    });
+
+    await offForegroundServiceNotification('upload', 'appclose').then(() => {
+      setIsUploadOn(false);
+      props.setIsUpload(false);
+    });
+  }
+
+  useEffect(() => {
+    return () => {
+      offDisplayNotification();
+    };
+  }, []);
 
   useEffect(() => {
     setLightArray([]);
@@ -182,44 +211,57 @@ export default function Foregroundservice() {
   return (
     <View>
       <Button
-        title="Start uploading data"
-        onPress={() => onDisplayNotification()}
-      />
-      <Button
-        title="Stop uploading data"
+        title="데이터 업로드 시작"
         onPress={() => {
-          setAccSubscription(accSubscription => {
-            accSubscription?.unsubscribe();
-            return null;
-          });
-          setGyroSubscription(gyroSubscription => {
-            gyroSubscription?.unsubscribe();
-            return null;
-          });
-          setMagSubscription(magSubscription => {
-            magSubscription?.unsubscribe();
-            return null;
-          });
-          setLuxsubscription(luxsubscription => {
-            luxsubscription?.remove();
-            return null;
-          });
-          notifee
-            .stopForegroundService()
-            .then(() => {
-              console.log('Foreground service stopped');
-            })
-            .catch(err => {
-              console.log('Foreground service failed to stop', err);
-            });
+          onDisplayNotification();
         }}
       />
       <Button
-        title="Toggle Awake"
+        title="데이터 업로드 중지"
+        onPress={() => {
+          offDisplayNotification();
+        }}
+      />
+      <Button
+        title="업로드된 데이터 초기화"
+        onPress={() => {
+          Alert.alert(
+            '경고',
+            '업로드된 데이터가 모두 삭제됩니다. 계속하시겠습니까?',
+            [
+              {
+                text: '취소',
+                onPress: () => {},
+                style: 'cancel',
+              },
+              {
+                text: '확인',
+                onPress: () => {
+                  firestore()
+                    .collection(auth().currentUser.email)
+                    .get()
+                    .then(querySnapshot => {
+                      querySnapshot.forEach(documentSnapshot => {
+                        documentSnapshot.ref.delete();
+                      });
+                    });
+                  props.setUploadCount(0);
+                  AsyncStorage.setItem('uploadCount', '0');
+                },
+              },
+            ],
+            {cancelable: false},
+          );
+        }}
+      />
+      <Button
+        title="깨어있음/잠자기 전환"
         onPress={() => {
           setAwake(!awake);
         }}
       />
+
+      <Text>데이터 업로드 중... {isUploadOn ? '진행 중' : '중지됨'}</Text>
       <Text>나는 지금... {awake ? '깨어있어요!' : '잘 꺼에요!'}</Text>
     </View>
   );
